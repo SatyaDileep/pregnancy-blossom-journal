@@ -30,6 +30,20 @@ project later**, so other makers can build their own beautiful, private
 journeys — and so the care that went into this one can reach the many, not the
 few.
 
+## 📖 Why I made this
+
+I searched. A lot. Up and down, across dozens of apps and journal platforms —
+and I kept coming up empty. So much of what's out there for this season of life
+is cold and clinical: charts, timers, "tracker" language, a nagging sense that
+*you* are the one being measured. I never found a journal that was genuinely
+**lovely** — warm in the way a hand-written letter is — that actually
+**blossoms** as the little one does, and that feels truly **close to a mother's
+heart**.
+
+So instead of settling, I made it. Every detail of this journal exists because
+I wished something better existed — and decided someone had to be the first to
+show that it could.
+
 ---
 
 > *If this resonates, share it with someone who's on this journey. The best
@@ -132,6 +146,42 @@ spiral-bound keepsake book you'll hand your little one one day.
 - **Backup & restore** — one JSON export, import anywhere
 - **Save & print** — a printed keepsake you can hold
 - **Installable PWA** — works fully offline on your phone
+
+---
+
+## 🗺 Roadmap
+
+This is a beginning, not the end. Here's where this little journal is headed:
+
+- **A real, full-fledged app** — on the **App Store and Google Play**, not just
+  a web page. And true to its soul, it stays **fully local & private**: no
+  servers to watch you, **no keys**, **no pricing**. Yours, forever.
+- **A baby bot that nudges you.** Imagine a voice that reaches out *as your
+  little one* — cheering on the progress you're making, gently present between
+  entries. Not another self-interested LLM: an **empathetic layer** designed to
+  *elevate* the experience, to make the journey feel held and seen.
+  - *How it powers itself:* it needs an LLM provider key under the hood. I'm
+    exploring **sign-in with Google** so your *own* key can do the talking
+    (password-free, private), or sharing a key I provision myself. *(t.b.d.)*
+  - You'll always stay in control — the empathetic layer is an option, never a
+    requirement, and never a data grab.
+
+---
+
+## 🤝 Make it even more beautiful
+
+This journal is meant to be grown, like the journey it holds. If you feel the
+care, you can help it blossom further:
+
+- **Tidy a detail, polish a palette, or refine a word** — the small things move
+  the needle on how it *feels*.
+- **Share your thoughts with human empathy** — design that considers someone's
+  feelings is better with many hearts behind it.
+- **Spread the word** — the loveliest thing you can contribute is letting a
+  mother-to-be know this exists.
+
+Every contribution — code or kindness — makes it gentler. The project aims to
+be **open-source**, so this can grow beyond one person's care.
 
 ---
 

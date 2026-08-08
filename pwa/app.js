@@ -2459,7 +2459,9 @@ function wire() {
   if (coverDates) coverDates.addEventListener('click', openSettings);
   $('#s-lmp').addEventListener('change', () => {
     const lmp = $('#s-lmp').value;
-    if (lmp) $('#s-due').value = addDays(lmp, 280);
+    // Re-derive the due date from the LMP automatically, and clear it when the
+    // LMP is cleared so a stale due date can't keep the week indicator alive.
+    $('#s-due').value = lmp ? addDays(lmp, 280) : '';
   });
 
   $('#btn-guide').addEventListener('click', openJourneyGuide);

@@ -1,16 +1,111 @@
 # 🌼 pregnancy-blossom-journal
 
-A soft, personal digital journal for your pregnancy journey — milestones, photos, and memories, gently captured week by week as your little one blossoms.
+> A soft, personal digital journal for your pregnancy journey — milestones,
+> photos and memories, gently captured week by week as your little one blossoms.
 
-## ✨ Features
+Turn 40-ish weeks of quiet waiting into a keepsake you'll treasure forever.
+No timers, no clinical charts — just a warm, handcrafted place to hold every
+first kick, every scan, every "hurry up, little one" and all the love in between.
+
+---
+
+## 👀 First look
+
+A gentle cover that's all yours — and a journey that unfolds week by week.
+
+<p align="center">
+  <img src="screenshots/first-page.JPG" width="260" alt="The cozy, personalised cover of the journal" />
+</p>
+
+---
+
+## 💝 Features that feel like a hug
+
+Everything is made to be **completely customisable** — your names, your little
+one's nickname, the due date, even the words on the cover. It's *your* story,
+told your way.
+
+<p align="center">
+  <img src="screenshots/completely-customisable.JPG" width="560" alt="Everything in the journal is customisable" />
+</p>
+
+**Add anything, any time.** A page, a memory, a milestone — whenever the mood
+strikes, capture it the moment you love it.
+
+<p align="center">
+  <img src="screenshots/add-a-page-or-memory-or-milestone-as-you-love.JPG" width="560" alt="Add a page, memory or milestone whenever you love" />
+</p>
+
+**Drag, drop, rearrange.** Put the pages in exactly the order your heart wants
+them — it's your journal to shape.
+
+<p align="center">
+  <img src="screenshots/drag-drop-to-rearrange.JPG" width="560" alt="Drag and drop to rearrange your journal pages" />
+</p>
+
+### Amazing options, everywhere you look
+
+The little things make it special — so we packed in a full set of thoughtful
+options that appear exactly when you want them.
+
+<p align="center">
+  <img src="screenshots/amazing-options.JPG" width="560" alt="Thoughtful options available throughout the app" />
+</p>
+
+### Flip through it two beautiful ways
+
+**Carousel view** — swipe through your journey page by page, like turning the
+leaves of a scrapbook.
+
+<p align="center">
+  <img src="screenshots/carousel-view.JPG" width="560" alt="Browsing the journal in the carousel view" />
+</p>
+
+**Stacked experience** — see all your pages in one calm, flowing scroll.
+
+<p align="center">
+  <img src="screenshots/stacked-experience.JPG" width="560" alt="Browsing the journal in the stacked view" />
+</p>
+
+Always **easy to navigate**, however deep into your story you are.
+
+<p align="center">
+  <img src="screenshots/easy-navigation.JPG" width="560" alt="Easy navigation throughout the journal" />
+</p>
+
+### Your colour, everywhere
+
+Six themes, applied **globally** — pick the mood that matches your journey and
+the whole journal falls in love with it.
+
+<p align="center">
+  <img src="screenshots/global-theme.JPG" width="560" alt="Global theme picker with six warm palettes" />
+</p>
+
+### Save it, print it, keep it forever
+
+Capture every word and picture, then **save or print** it into a real,
+spiral-bound keepsake book you'll hand your little one one day.
+
+<p align="center">
+  <img src="screenshots/options-to-save-or-print.JPG" width="560" alt="Options to save or print your journal as a keepsake" />
+</p>
+
+---
+
+## ✨ Features at a glance
 
 - **Milestone pages** — the classic moments of pregnancy, ready to fill in
-- **Week-by-week guidance** — notes for every week (weeks 4–40)
+- **Week-by-week guidance** — heartfelt notes for every week (weeks 4–40)
 - **Photo memories** — attach a photo to each page
-- **Six themes** — make it feel like yours
-- **Carousel + stacked views** — browse the journey however you like
-- **Backup & restore** — export one JSON file, import it anywhere
+- **Six global themes** — make it feel like yours
+- **Carousel + stacked views** — browse however you like
+- **Drag & drop reordering** — shape your story
+- **Backup & restore** — one JSON export, import anywhere
+- **Save & print** — a printed keepsake you can hold
 - **Installable PWA** — works fully offline on your phone
+
+---
 
 ## 🗂 Two ways to run
 
@@ -37,7 +132,7 @@ npm start
 
 ### 2. PWA (serverless, fully offline)
 
-Everything lives in the phone's own storage (IndexedDB) — no server, no cloud.
+Everything lives on the phone itself (IndexedDB) — no server, no cloud.
 
 ```bash
 cd pwa
@@ -45,9 +140,13 @@ node serve.js
 # → http://localhost:4174
 ```
 
-Serve it over `localhost` (or any HTTPS host) and **Add to Home Screen** from the browser. It then runs full-screen, offline, forever. See [`pwa/README.md`](pwa/README.md) for install and data-migration details.
+Serve it over `localhost` (or any HTTPS host), **Add to Home Screen**, and it
+runs full-screen, offline, forever. See [`pwa/README.md`](pwa/README.md) for
+installation and data-migration details.
 
-## 🧪 Helper scripts
+---
+
+## 🧰 Helper scripts
 
 - `seed-demo.js` — seed demo pages for testing
 - `make-sample.js` — generate sample content
@@ -57,9 +156,9 @@ Serve it over `localhost` (or any HTTPS host) and **Add to Home Screen** from th
 ## 🔒 Privacy
 
 Your journal is yours. The server's real entries and photos live in `data/`
-(entries.json, settings.json, photos/), which is git-ignored and never published.
-The PWA keeps everything locally on your device. Back up regularly from
-**Settings → ⬇ Export backup**.
+(entries.json, settings.json, photos/), which is git-ignored — **never
+published**. The PWA keeps everything local on the device. Back up regularly
+from **Settings → ⬇ Export backup**.
 
 ## 📄 License
 

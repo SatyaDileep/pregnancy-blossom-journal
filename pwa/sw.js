@@ -5,7 +5,7 @@
 
    Bump CACHE when you change index.html / styles.css / app.js so the
    new version replaces the old cache on the next visit. */
-const CACHE = 'journey-journal-v35';
+const CACHE = 'journey-journal-v36';
 
 const SHELL = [
   './',

@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+
+# Personal journal data (entries & photos) - keep private
+data/
+
+# Local databases
+.freebuff/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db

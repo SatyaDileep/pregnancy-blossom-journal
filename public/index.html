@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Our Journey To You</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👶</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Caveat:wght@400;500;600;700&family=Great+Vibes&family=Patrick+Hand&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- subtle background icons across the whole page -->
+  <div class="bg-icons" aria-hidden="true">
+    <span class="i1">🌼</span>
+    <span class="i2">🍼</span>
+    <span class="i3">🦋</span>
+    <span class="i4">👣</span>
+    <span class="i5">💛</span>
+    <span class="i6">🍀</span>
+    <span class="i7">⭐</span>
+    <span class="i8">🐣</span>
+  </div>
+  <div class="scene">
+    <!-- Top bar -->
+    <header class="topbar" id="topbar">
+      <div class="topbar-inner">
+        <button class="icon-btn" id="btn-settings" title="Journal settings" aria-label="Journal settings">⚙️</button>
+        <div class="topbar-title">
+          <span class="brand" id="brand-title">Our Journey To You</span>
+          <span class="topbar-sub" id="brand-sub">Mummy &amp; Daddy</span>
+        </div>
+        <div class="topbar-actions">
+          <div class="view-switch" role="group" aria-label="Journal view">
+            <button type="button" class="view-btn active" data-view="carousel" title="Flip through your pages as cards">🎠 Carousel</button>
+            <button type="button" class="view-btn" data-view="stacked" title="Read the pages stacked like a journal">📖 Stacked</button>
+          </div>
+          <span class="week-chip" id="current-week-chip" hidden></span>
+          <button type="button" class="reorder-btn" id="btn-reorder" title="Drag pages to rearrange them" aria-label="Rearrange pages">⇅ Reorder</button>
+          <button class="btn btn-primary" id="btn-new">＋ New page</button>
+          <div class="reorder-hint" id="reorder-hint" hidden>Drag pages to rearrange · then tap ✓ Done</div>
+        </div>
+      </div>
+    </header>
+
+    <main class="journal" id="journal">
+      <!-- Cover -->
+      <section class="cover page" id="cover">
+        <div class="cover-inner">
+          <div class="cover-scribble" aria-hidden="true">✿</div>
+          <h1 class="cover-title" id="cover-title">Our Journey To You</h1>
+          <div class="cover-emoji" id="cover-emoji">🌼</div>
+          <p class="cover-names" id="cover-names">Mummy &amp; Daddy</p>
+          <p class="cover-nickname" id="cover-nickname">for our Little One</p>
+          <div class="divider-heart" aria-hidden="true"><span>✦</span></div>
+          <p class="cover-message" id="cover-message"></p>
+          <div class="cover-badges">
+            <span class="sticker" id="cover-week" hidden></span>
+            <span class="sticker sticker-soft" id="cover-trim" hidden></span>
+          </div>
+          <button type="button" class="btn btn-guide" id="btn-guide" title="A week-by-week look at what is happening for you and little one">📖 Week-by-week guide</button>
+          <button type="button" class="btn btn-dates" id="cover-dates" hidden title="Add your last period date and we'll calculate every week for you">📅 Add your dates</button>
+          <p class="cover-footnote" id="cover-footnote">begun <span id="cover-start"></span></p>
+        </div>
+      </section>
+
+      <!-- Journey progress -->
+      <section class="progress-section" id="progress-section" hidden>
+        <div class="progress-label" id="progress-label"></div>
+        <div class="progress-track" id="progress-track"></div>
+      </section>
+
+      <!-- Pages -->
+      <section class="pages" id="pages" aria-label="Journal pages"></section>
+    </main>
+
+    <footer class="footer">
+      <span id="footer-note">— every page is ours —</span>
+    </footer>
+  </div>
+
+  <!-- Entry editor modal -->
+  <div class="overlay" id="editor-overlay" hidden>
+    <div class="modal modal-editor" role="dialog" aria-modal="true" aria-labelledby="editor-title">
+      <div class="modal-head">
+        <h2 id="editor-title">New page</h2>
+        <button class="icon-btn" id="editor-close" aria-label="Close">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <input type="hidden" id="f-id" />
+
+        <div class="seg" id="f-type" role="group" aria-label="Page type">
+          <button type="button" class="seg-btn" data-type="milestone">⭐ Milestone</button>
+          <button type="button" class="seg-btn active" data-type="memory">📷 Memory</button>
+          <button type="button" class="seg-btn" data-type="note">✍️ Note</button>
+        </div>
+
+        <div class="field">
+          <label for="f-date">Date of this moment</label>
+          <input type="date" id="f-date" />
+        </div>
+
+        <div class="field" id="f-title-field">
+          <label for="f-title">Title</label>
+          <input type="text" id="f-title" placeholder="e.g. We heard your heartbeat" maxlength="90" />
+        </div>
+
+        <div class="field" id="week-field" hidden>
+          <label for="f-week">The week it happened <span class="hint">(only if you have no exact date yet)</span></label>
+          <input type="number" id="f-week" min="1" max="42" placeholder="e.g. 12" />
+        </div>
+
+        <div class="field" id="mentions-field" hidden>
+          <label>Blood tests &amp; checks on this page <span class="hint">(mentions, not separate pages)</span></label>
+          <div class="mention-list" id="mentions-list"></div>
+          <button type="button" class="btn btn-ghost btn-sm" id="mentions-add">＋ add a mention</button>
+        </div>
+
+        <div class="field">
+          <label for="f-note">Write your words <span class="hint">(handwritten style)</span></label>
+          <textarea id="f-note" rows="6" placeholder="Tell this page what happened, what you felt, what you remember…"></textarea>
+        </div>
+
+        <div class="field">
+          <label>Photo <span class="hint">(optional)</span></label>
+          <div class="dropzone" id="dropzone">
+            <input type="file" id="f-photo" accept="image/*" hidden />
+            <div class="dropzone-empty" id="dz-empty">
+              <span class="dz-icon">🖼️</span>
+              <span>Tap to add a photo</span>
+              <span class="dz-sub">any picture you love — you can always replace it</span>
+            </div>
+            <div class="dropzone-preview" id="dz-preview" hidden>
+              <img id="dz-img" alt="Photo preview" />
+              <button type="button" class="dz-remove" id="dz-remove" aria-label="Remove photo">✕</button>
+            </div>
+          </div>
+          <div class="photo-size-row" id="photo-size-row">
+            <span class="hint">Photo size</span>
+            <div class="seg seg-sm" id="f-photosize" role="group" aria-label="Photo size">
+              <button type="button" class="seg-btn active" data-size="large">Big</button>
+              <button type="button" class="seg-btn" data-size="small">Small</button>
+            </div>
+          </div>
+          <div class="field field-narrow" id="f-caption-field">
+            <label for="f-photocaption">Caption under photo</label>
+            <input type="text" id="f-photocaption" maxlength="60" placeholder="a few soft words…" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Little icon</label>
+          <div class="icon-picker" id="f-icon"></div>
+        </div>
+
+        <label class="check" id="arrow-row" hidden>
+          <input type="checkbox" id="f-arrow" />
+          <span class="check-box">🡒</span>
+          <span class="check-label">Draw a little arrow from my words to the photo</span>
+        </label>
+      </div>
+
+      <div class="modal-foot">
+        <button class="btn btn-ghost" id="editor-cancel">Cancel</button>
+        <button class="btn btn-primary" id="editor-save">Save this page 💛</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Peek-inside modal (opens from any page's "Peek inside this week") -->
+  <div class="overlay" id="guide-overlay" hidden>
+    <div class="modal modal-guide" role="dialog" aria-modal="true" aria-labelledby="guide-title">
+      <div class="modal-head">
+        <h2 id="guide-title"></h2>
+        <button class="icon-btn" id="guide-close" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body" id="guide-body"></div>
+      <div class="modal-foot guide-foot">
+        <button class="btn btn-ghost btn-sm" id="guide-prev">‹ earlier week</button>
+        <button class="btn btn-primary btn-sm" id="guide-next">later week ›</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Standalone week-by-week journey view (opens from the cover) -->
+  <div class="overlay" id="journey-overlay" hidden>
+    <div class="modal modal-journey" role="dialog" aria-modal="true" aria-labelledby="journey-title">
+      <div class="modal-head">
+        <h2 id="journey-title">Week-by-week guide</h2>
+        <button class="icon-btn" id="journey-close" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="journey-trims" id="journey-trims"></div>
+        <div class="journey-summary" id="journey-summary"></div>
+        <div class="journey-weeks" id="journey-weeks"></div>
+        <div class="journey-detail" id="journey-detail"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings modal -->
+  <div class="overlay" id="settings-overlay" hidden>
+    <div class="modal modal-settings" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+      <div class="modal-head">
+        <h2 id="settings-title">About our journal</h2>
+        <button class="icon-btn" id="settings-close" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label for="s-title">Journal title</label>
+          <input type="text" id="s-title" maxlength="60" />
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="s-mama">Mummy's name</label>
+            <input type="text" id="s-mama" maxlength="30" />
+          </div>
+          <div class="field">
+            <label for="s-papa">Daddy's name</label>
+            <input type="text" id="s-papa" maxlength="30" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="s-nick">Baby's nickname</label>
+          <input type="text" id="s-nick" maxlength="30" placeholder="Little One" />
+        </div>
+        <div class="field" id="lmp-field">
+          <label for="s-lmp">First day of your last period <span class="hint">(we'll calculate your due date and every week from this — you can edit it anytime to recalculate)</span></label>
+          <input type="date" id="s-lmp" />
+        </div>
+        <div class="field">
+          <label for="s-due">Due date <span class="hint">(auto-filled from your period — you can adjust)</span></label>
+          <input type="date" id="s-due" />
+        </div>
+        <div class="field">
+          <label for="s-emoji">Cover ornament</label>
+          <div class="icon-picker" id="s-emoji"></div>
+        </div>
+        <div class="field">
+          <label>Theme <span class="hint">(a soft palette for your journey)</span></label>
+          <div class="theme-picker" id="s-theme"></div>
+        </div>
+        <div class="field">
+          <label for="s-msg">A message for the cover</label>
+          <textarea id="s-msg" rows="3" maxlength="200"></textarea>
+        </div>
+        <div class="field keepsake">
+          <label>Make it a keepsake <span class="hint">(print this journal — or hand the file to a print shop)</span></label>
+          <div class="keepsake-actions">
+            <button type="button" class="btn btn-ghost" id="settings-print" title="Open the print dialog — pick your printer, save as PDF, or both">🖨 Print / PDF</button>
+            <button type="button" class="btn btn-ghost" id="settings-export-html" title="Download a self-contained, print-ready HTML file with all photos embedded">📄 Save as HTML</button>
+          </div>
+          <p class="keepsake-tip">Made for printing: A4, spine-safe margins, one page per entry, exact colours. Print double-sided (flip on long edge) for a spiral-bound keepsake.</p>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" id="settings-cancel">Cancel</button>
+        <button class="btn btn-primary" id="settings-save">Keep this 💛</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Art prompt modal (opens from a milestone's 🎨 Art prompt button) -->
+  <div class="overlay" id="art-overlay" hidden>
+    <div class="modal modal-art" role="dialog" aria-modal="true" aria-labelledby="art-title">
+      <div class="modal-head">
+        <h2 id="art-title">A picture for this page</h2>
+        <button class="icon-btn" id="art-close" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="art-intro">Copy this prompt into any image generator, then add the finished picture to this page with ✏️ Edit → Photo. Tweak the words freely first.</p>
+        <textarea id="art-text" class="art-text" spellcheck="false"></textarea>
+        <ul class="art-steps">
+          <li>🎨 Generate the image anywhere you like — Midjourney, DALL·E, Leonardo, Stable Diffusion…</li>
+          <li>✏️ On this page tap <b>Edit</b> → tap the photo box → choose your picture</li>
+          <li>💛 Save — the page now carries its own little artwork</li>
+        </ul>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" id="art-cancel">Close</button>
+        <button class="btn btn-primary" id="art-copy">📋 Copy prompt</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="guide-data.js"></script>
+  <script src="art-prompts.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

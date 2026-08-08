@@ -1,0 +1,17 @@
+{
+  "name": "Our Journey To You",
+  "short_name": "Our Journey",
+  "description": "A soft, personal digital journal for your pregnancy journey — kept entirely on your own device.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f7f0e7",
+  "theme_color": "#f7f0e7",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

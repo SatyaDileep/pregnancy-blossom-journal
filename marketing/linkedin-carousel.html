@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<style>
+  /* LinkedIn carousel: each slide is a portrait page 1080x1350 (in pt) */
+  @page { size: 1080px 1350px; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; }
+  body {
+    font-family: 'Segoe UI', -apple-system, Roboto, sans-serif;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .slide {
+    width: 1080px; height: 1350px;
+    page-break-after: always;
+    position: relative;
+    overflow: hidden;
+    padding: 90px 80px 70px;
+    display: flex; flex-direction: column;
+    background: #fdf7f2;
+  }
+  .slide:last-child { page-break-after: auto; }
+
+  .brand {
+    position: absolute; top: 0; left: 0; right: 0;
+    padding: 30px 80px;
+    display: flex; align-items: center; gap: 14px;
+    font-size: 26px; font-weight: 700; letter-spacing: .3px;
+    color: #c96f75;
+  }
+  .brand .dot { width: 12px; height: 12px; border-radius: 50%; background: #f2b8a3; }
+
+  .eyebrow {
+    margin-top: 70px;
+    font-size: 24px; font-weight: 700; letter-spacing: 5px;
+    text-transform: uppercase; color: #c96f75;
+  }
+  h1 {
+    margin-top: 26px;
+    font-size: 78px; line-height: 1.06; font-weight: 800;
+    color: #5a4438; letter-spacing: -.5px;
+  }
+  h1 .accent { color: #c96f75; }
+  h2 { font-size: 52px; line-height: 1.12; font-weight: 800; color: #5a4438; }
+  p.lead { margin-top: 30px; font-size: 32px; line-height: 1.5; color: #7a6257; font-weight: 400; }
+
+  .shot { margin: auto 0; text-align: center; }
+  .shot img { max-height: 760px; max-width: 100%; border-radius: 22px; box-shadow: 0 24px 60px rgba(150, 90, 60, .22); }
+  .shot.small img { max-height: 640px; }
+  .cap { margin-top: 26px; font-size: 30px; color: #7a6257; line-height: 1.4; text-align: center; font-weight: 400; }
+  .cap b { color: #5a4438; }
+
+  .pagewrap { flex: 1; }
+  .chunk { margin-top: 44px; display: flex; gap: 36px; align-items: flex-start; }
+  .num {
+    flex: 0 0 76px; height: 76px; border-radius: 18px;
+    background: #c96f75; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 38px; font-weight: 800;
+  }
+  .chunk .txt { font-size: 34px; line-height: 1.42; color: #6b5548; }
+
+  .footer {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    font-size: 26px; color: #c09683;
+    padding-top: 20px; border-top: 1px dashed #e2cdc2;
+  }
+  .footer .right { font-weight: 700; color: #c96f75; font-size: 28px; }
+
+  /* last slide closing */
+  .closing { align-items: center; justify-content: center; text-align: center; }
+  .closing .big { font-size: 110px; line-height: 1.1; font-weight: 800; color: #5a4438; }
+  .closing .big .accent { color: #c96f75; }
+  .closing p { margin-top: 40px; font-size: 34px; color: #7a6257; max-width: 860px; line-height: 1.5; }
+</style>
+</head>
+<body>
+
+  <!-- 1. COVER -->
+  <section class="slide">
+    <div class="brand"><span class="dot"></span> pregnancy-blossom-journal</div>
+    <div class="eyebrow">Built with heart</div>
+    <h1>A gentle journal for the <span class="accent">most awaited journey</span></h1>
+    <p class="lead">Milestones, photos &amp; memories for mothers and fathers who are expecting a little one.</p>
+    <div class="shot small">
+      <img src="screenshots/first-page.JPG" alt="" />
+    </div>
+  </section>
+
+  <!-- 2. THE WHY -->
+  <section class="slide">
+    <div class="brand"><span class="dot"></span> pregnancy-blossom-journal</div>
+    <div class="eyebrow">Why I made it</div>
+    <h1 style="font-size:64px">I kept searching. Nothing felt right.</h1>
+    <p class="lead">Listening to the people closest to me, so many bought beautiful physical journals &mdash; and then felt boxed-in by them.</p>
+    <div class="pagewrap" style="margin-top:50px">
+      <div class="chunk"><div class="num">1</div><div class="txt"><b>Monotonous layouts</b> &mdash; the same flat pages on every day, in every book.</div></div>
+      <div class="chunk"><div class="num">2</div><div class="txt"><b>Hardcoded pages</b> that <b>force you to write</b>, whether you feel like it or not.</div></div>
+      <div class="chunk"><div class="num">3</div><div class="txt">No <b>cuteness</b> of icons, no <b>sparkling messages</b>, no gentle <b>nudges</b>.</div></div>
+    </div>
+  </section>
+
+  <!-- 3. BUILT FROM GROUND UP -->
+  <section class="slide">
+    <div class="brand"><span class="dot"></span> pregnancy-blossom-journal</div>
+    <div class="eyebrow">The approach</div>
+    <h1>Built from the ground up &mdash; <span class="accent">with you in mind</span></h1>
+    <p class="lead">Not a tracker with cold charts. A soft, personal space designed around a real human's feelings.</p>
+    <div class="shot small">
+      <img src="screenshots/completely-customisable.JPG" alt="" />
+    </div>
+  </section>
+
+  <!-- 4. CAPTURE WHEN YOU LOVE -->
+  <section class="slide">
+    <div class="brand"><span class="dot"></span> pregnancy-blossom-journal</div>
+    <div class="eyebrow">Capture the moment</div>
+    <h2>Add a page, a memory, a milestone &mdash; whenever the mood strikes.</h2>
+    <div class="shot">
+      <img src="screenshots/add-a-page-or-memory-or-milestone-as-you-love.JPG" alt="" />
+    </div>
+    <div class="cap">Not forced. Just <b>waiting warmly for whatever you feel like writing</b> today.</div>
+  </section>
+
+  <!-- 5. FLIP TWO WAYS -->
+  <section class="slide">
+    <div class="brand"><span class="dot"></span> pregnancy-blossom-journal</div>
+    <div class="eyebrow">Two lovely ways to browse</div>
+    <h2 style="font-size:46px">Carousel &amp; stacked &mdash; your story, your rhythm.</h2>
+    <div class="shot small">
+      <img src="screenshots/carousel-view.JPG" alt="" />
+    </div>
+    <div class="cap">Swipe like a scrapbook, or scroll the whole journey in one calm flow.</div>
+  </section>
+
+  <!-- 6. STACKED & DRAG-DROP -->
+  <section class="slide">
+    <div class="brand"><span class="dot"></span> pregnancy-blossom-journal</div>
+    <div class="eyebrow">Shape it</div>
+    <h2 style="font-size:44px">Drag &amp; drop to rearrange. Make it truly yours.</h2>
+    <div class="shot small">
+      <img src="screenshots/drag-drop-to-rearrange.JPG" alt="" />
+    </div>
+    <div class="cap">A journal you can <b>shape to match your heart's order</b>.</div>
+  </section>
+
+  <!-- 7. THEME & NAVIGATION -->
+  <section class="slide">
+    <div class="brand"><span class="dot"></span> pregnancy-blossom-journal</div>
+    <div class="eyebrow">The feel</div>
+    <h2 style="font-size:46px">Warm themes &mdash; your colour, everywhere.</h2>
+    <div class="shot small">
+      <img src="screenshots/global-theme.JPG" alt="" />
+    </div>
+    <div class="cap">Six global palettes, applied across the whole journal. Easy navigation throughout.</div>
+  </section>
+
+  <!-- 8. KEEPSAKE -->
+  <section class="slide">
+    <div class="brand"><span class="dot"></span> pregnancy-blossom-journal</div>
+    <div class="eyebrow">Keep it forever</div>
+    <h2>A keepsake you can hold &mdash; save it, print it.</h2>
+    <div class="shot small">
+      <img src="screenshots/options-to-save-or-print.JPG" alt="" />
+    </div>
+    <div class="cap">Turn all your words &amp; pictures into a real, spiral-bound book. For the little one, one day.</div>
+  </section>
+
+  <!-- 9. PRIVATE PWA -->
+  <section class="slide">
+    <div class="brand"><span class="dot"></span> pregnancy-blossom-journal</div>
+    <div class="eyebrow">Private by design</div>
+    <h1 style="font-size:56px">On your phone. Fully local. Fully offline.</h1>
+    <p class="lead">Install it as a PWA &mdash; your journal lives on your device, not in a cloud. No mining, no selling, no account. Just privacy.</p>
+    <div class="shot small">
+      <img src="screenshots/stacked-experience.JPG" alt="" />
+    </div>
+  </section>
+
+  <!-- 10. CLOSING -->
+  <section class="slide closing">
+    <div class="brand"><span class="dot"></span> pregnancy-blossom-journal</div>
+    <div class="big">Made with<br /><span class="accent">full heart</span></div>
+    <p>for the loving couples expecting a little one &mdash; because the waiting should feel as beautiful as what it waits for.</p>
+    <div class="footer" style="position:absolute; left:80px; right:80px; bottom:60px; border:none; justify-content:center;">
+      <div>🌼</div>
+    </div>
+  </section>
+</body>
+</html>

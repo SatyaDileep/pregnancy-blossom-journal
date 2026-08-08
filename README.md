@@ -1,5 +1,8 @@
 # 🌼 pregnancy-blossom-journal
 
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![Live demo](https://img.shields.io/badge/Live%20demo-Netlify-00c7b7.svg)](https://pregnancy-blossom-journal.netlify.app/)
+
 > A soft, personal digital journal for your pregnancy journey — milestones,
 > photos and memories, gently captured week by week as your little one blossoms.
 
@@ -25,10 +28,13 @@ And it meets you on **your favourite device**. Install it as a **PWA** and the
 whole journal lives on your phone — instantly reachable, fully offline, no
 cloud, no account. One tap, and it's there whenever you need to breathe out.
 
-I'm proud of the craft behind that. And it's my plan to **open-source this
-project later**, so other makers can build their own beautiful, private
-journeys — and so the care that went into this one can reach the many, not the
-few.
+I'm proud of the craft behind that. And because I know the joy of giving, this
+project is **open-source** — freely available under the **Apache 2.0** license,
+so other makers can build their own beautiful, private journeys — and so the
+care that went into this one can reach the many, not the few.
+
+> **✨ See it live:** try it at <https://pregnancy-blossom-journal.netlify.app/>
+> — install it as an app on your phone, and it runs fully offline.
 
 ## 📖 Why I made this
 
@@ -240,4 +246,5 @@ from **Settings → ⬇ Export backup**.
 
 ## 📄 License
 
-Private / personal project.
+Licensed under the **Apache License 2.0** — free to use, modify, and even
+commercialize, with attribution. See [LICENSE](LICENSE) for the full terms.

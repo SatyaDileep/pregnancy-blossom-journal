@@ -7,6 +7,34 @@ Turn 40-ish weeks of quiet waiting into a keepsake you'll treasure forever.
 No timers, no clinical charts — just a warm, handcrafted place to hold every
 first kick, every scan, every "hurry up, little one" and all the love in between.
 
+## ♡ Built with heart
+
+This isn't a routine project churned out to hit a feature list — it's something
+I built **passionately**, page by page, with **empathy** for every person who
+will hold it. I thought hard about how a real human would *feel* while using it:
+the gentle rhythm of the words, the warm palettes, the way it celebrates the
+small quiet moments rather than measuring them. This is software designed
+around a person's taste and feelings — not a screen's checklist.
+
+I believe **online life should feel personal and private**. So privacy is the
+foundation here, not an afterthought: your journal, your photos, your words —
+never mined, never sold, never broadcast. It's a safe, quiet space that belongs
+to you.
+
+And it meets you on **your favourite device**. Install it as a **PWA** and the
+whole journal lives on your phone — instantly reachable, fully offline, no
+cloud, no account. One tap, and it's there whenever you need to breathe out.
+
+I'm proud of the craft behind that. And it's my plan to **open-source this
+project later**, so other makers can build their own beautiful, private
+journeys — and so the care that went into this one can reach the many, not the
+few.
+
+---
+
+> *If this resonates, share it with someone who's on this journey. The best
+> thing it can do is arrive when a heart needs it.*
+
 ---
 
 ## 👀 First look

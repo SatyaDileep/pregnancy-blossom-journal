@@ -1,0 +1,106 @@
+name: Build iOS App (TestFlight)
+
+# Run manually from the Actions tab: Actions -> "Build iOS App (TestFlight)" -> "Run workflow".
+#
+# iOS is fundamentally different from Android: Apple does not allow sideloading, so a real
+# install on an iPhone requires an Apple Developer Program account ($99/yr) and a signed IPA.
+# This workflow signs with certificates you provide as repo Secrets (see app/docs/IOS_BUILD.md
+# for the full one-time checklist). If the secrets are missing, it still builds an UNSIGNED
+# IPA (which cannot be installed — it just proves the build works) and warns you.
+on:
+  workflow_dispatch:
+    inputs:
+      upload_to_testflight:
+        description: 'Upload to TestFlight (requires the 7 Apple secrets below)'
+        type: boolean
+        default: true
+
+jobs:
+  build-ios:
+    name: Build & sign iOS app
+    runs-on: macos-15
+    env:
+      BUNDLE_ID: com.blossom.blossomJournal
+      TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      CERT_BASE64: ${{ secrets.APPLE_DIST_CERT_BASE64 }}
+      CERT_PASSWORD: ${{ secrets.APPLE_DIST_CERT_PASSWORD }}
+      PROFILE_BASE64: ${{ secrets.APPLE_PROFILE_BASE64 }}
+      ASC_API_KEY: ${{ secrets.APPLE_ASC_API_KEY }}
+      ASC_KEY_ID: ${{ secrets.APPLE_ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.APPLE_ASC_ISSUER_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Fetch dependencies
+        working-directory: app
+        run: flutter pub get
+
+      # ---- Signing (only when the Apple secrets exist) ----
+      - name: Import Apple distribution certificate
+        if: env.CERT_BASE64 != ''
+        run: |
+          set -euo pipefail
+          echo "$CERT_BASE64" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          KEYCHAIN="$RUNNER_TEMP/signing.keychain-db"
+          security create-keychain -p "$CERT_PASSWORD" "$KEYCHAIN"
+          security default-keychain -s "$KEYCHAIN"
+          security unlock-keychain -p "$CERT_PASSWORD" "$KEYCHAIN"
+          security import "$RUNNER_TEMP/cert.p12" -k "$KEYCHAIN" -P "$CERT_PASSWORD" -A -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$CERT_PASSWORD" "$KEYCHAIN" > /dev/null 2>&1 || true
+
+      - name: Install provisioning profile
+        if: env.PROFILE_BASE64 != ''
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          PROFILE="$HOME/Library/MobileDevice/Provisioning Profiles/profile.mobileprovision"
+          echo "$PROFILE_BASE64" | base64 --decode > "$PROFILE"
+          UUID=$(plutil -extract UUID raw "$PROFILE" 2>/dev/null || true)
+          if [ -z "$UUID" ]; then
+            UUID=$(grep -a -A1 '<key>UUID</key>' "$PROFILE" | grep -aoE '[0-9A-F-]{36}' | head -1)
+          fi
+          mv "$PROFILE" "$HOME/Library/MobileDevice/Provisioning Profiles/$UUID.mobileprovision"
+          echo "Provisioning profile installed: $UUID"
+
+      # ---- Builds ----
+      - name: Build signed IPA (App Store / TestFlight)
+        if: env.CERT_BASE64 != ''
+        working-directory: app
+        run: flutter build ipa --release --export-method app-store-connect
+
+      - name: Build unsigned app (secrets not configured yet)
+        if: env.CERT_BASE64 == ''
+        working-directory: app
+        run: |
+          flutter build ios --release --no-codesign
+          echo "::warning::No Apple signing secrets found - built an UNSIGNED app. An unsigned iOS build CANNOT be installed on a real iPhone. Complete the checklist in app/docs/IOS_BUILD.md, add the 7 secrets, then re-run this workflow."
+
+      # ---- Upload ----
+      - name: Upload to App Store Connect (TestFlight)
+        if: env.CERT_BASE64 != '' && env.ASC_API_KEY != '' && inputs.upload_to_testflight
+        run: |
+          set -euo pipefail
+          KEY_PATH="$RUNNER_TEMP/AuthKey_$ASC_KEY_ID.p8"
+          printf '%s' "$ASC_API_KEY" > "$KEY_PATH"
+          chmod 600 "$KEY_PATH"
+          IPA=$(find app/build/ios/ipa -name '*.ipa' | head -1)
+          echo "Uploading $IPA to App Store Connect..."
+          xcrun altool --upload-app -f "$IPA" -t ios \
+            --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID" --verbose
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pregnancy-journal-ios
+          path: |
+            app/build/ios/ipa/*.ipa
+            app/build/ios/iphoneos/*.app
+          if-no-files-found: ignore
+          retention-days: 30

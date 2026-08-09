@@ -38,6 +38,17 @@ flutter test               # smoke tests
 flutter analyze            # lint gate — keep this clean
 ```
 
+## Installing on a phone
+
+- **Android** — no SDK needed: GitHub Actions builds the APK in the cloud
+  (`.github/workflows/build-apk.yml`). Actions → *Build Android APK* → Run
+  workflow → download `pregnancy-journal-apk`. Any machine can do this.
+- **iOS** — Apple requires real signing, so there's a one-time $99/yr Developer
+  Program step. Everything else is cloud too (`.github/workflows/build-ios.yml`
+  → TestFlight invite link). Full checklist + secrets table:
+  **[docs/IOS_BUILD.md](docs/IOS_BUILD.md)**. Free trial today: add the PWA to
+  your iPhone home screen (Share → Add to Home Screen).
+
 ## What's in place (foundation)
 
 - **Six themes** — `BlossomPalette` + `ThemeScope` (InheritedNotifier): switch

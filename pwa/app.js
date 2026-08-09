@@ -1795,6 +1795,10 @@ function openSettings() {
     settings.coverEmoji = v === 'none' ? '🌼' : v;
   });
   buildThemePicker();
+  const chatApi = $('#s-chatapi');
+  if (chatApi) {
+    try { chatApi.value = localStorage.getItem('blossom.chatApi') || 'http://localhost:51889'; } catch (e) {}
+  }
   $('#settings-overlay').hidden = false;
 }
 
@@ -1813,6 +1817,16 @@ async function saveSettings() {
   };
   try {
     settings = await persistSettings(payload);
+    // the AI companion server URL (where Blossom's brain lives) — device-level
+    const chatApi = $('#s-chatapi');
+    if (chatApi) {
+      const url = chatApi.value.trim().replace(/\/+$/, '');
+      try {
+        if (url) localStorage.setItem('blossom.chatApi', url);
+        else localStorage.removeItem('blossom.chatApi');
+      } catch (e) {}
+      if (window.BlossomChat) window.BlossomChat.setApiBase(url || resolveChatApiBase());
+    }
     $('#settings-overlay').hidden = true;
     toast('Your journal details are set. 💛');
     await loadAll();
@@ -2530,6 +2544,22 @@ function wire() {
 }
 
 /* ---------------- Blossom Baby (AI companion) ---------------- */
+/* The companion backend's URL, resolved in order:
+   1. ?chatApi=… query param (deployed embeds / power users)
+   2. the "AI companion server" URL saved in Settings (localStorage)
+   3. the local journal server (default for development) */
+function resolveChatApiBase() {
+  try {
+    const q = new URLSearchParams(location.search).get('chatApi');
+    if (q) return q.replace(/\/+$/, '');
+  } catch (e) {}
+  try {
+    const saved = localStorage.getItem('blossom.chatApi');
+    if (saved) return saved.replace(/\/+$/, '');
+  } catch (e) {}
+  return 'http://localhost:51889';
+}
+
 /* Live context for the chat widget: current week from the dates, plus a tiny
    non-photo digest of the family's recent pages (titles + weeks only — the
    widget only sends it if mama opted in during consent). */
@@ -2575,9 +2605,7 @@ function chatContext() {
   applyTheme();
   renderAll();
   if (window.BlossomChat) {
-    // The PWA talks to the journal server for the shared-key chat. When you
-    // deploy, change this to your deployed server URL.
-    window.BlossomChat.init({ apiBase: 'http://localhost:51889', getContext: chatContext });
+    window.BlossomChat.init({ apiBase: resolveChatApiBase(), getContext: chatContext });
   }
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(() => {});

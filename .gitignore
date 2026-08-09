@@ -4,6 +4,10 @@ node_modules/
 # Personal journal data (entries & photos) - keep private
 data/
 
+# Local secrets: the chat backend's private key files (see .env.example)
+.env
+.env.local
+
 # Local databases
 .freebuff/
 

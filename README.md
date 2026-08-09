@@ -269,16 +269,29 @@ and always answers with a caring "contact your doctor / emergency services".
   never through the server.
 - One-time disclaimer: "a cheerleader, not a doctor".
 
-**Setup (optional — mock mode works without it):**
+**Setup (optional — demo voice works without it):**
 ```bash
-# server-side Gemini key (never shipped to the client)
-export GEMINI_API_KEY=AIza…            # or put it in data/.env.local (gitignored)
-export CHAT_ADMIN_TOKEN=choose-one     # for the dashboard
-node server.js                         # then open /admin with that token
+cp .env.example .env          # then paste your key into .env
+node server.js
 ```
+The `.env` file is gitignored — the key never reaches GitHub. Real environment
+variables win over it, so on deploy just set `GEMINI_API_KEY` in the platform
+UI (Render/Railway/Netlify) — no code change. Then open `/admin` with your
+`CHAT_ADMIN_TOKEN` to watch anonymous usage.
+
+**Deploying the chat backend (so the phone/PWA gets real AI):**
+1. Host the Express server anywhere Node runs (Render/Railway/Fly — the repo
+   root is the app; `node server.js`).
+2. Set env vars from `.env.example`: `GEMINI_API_KEY`, `CHAT_ADMIN_TOKEN`, and
+   once public, `CHAT_CORS_ORIGINS=https://your-front-end-origin` (comma-
+   separated) so only your deployed front-ends may call `/api/chat`.
+3. Point the clients at it:
+   - **Web app**: open it with `?chatApi=https://your-backend` — no rebuild.
+   - **PWA**: ⚙️ Settings → **AI companion server** → paste the URL → Save.
+     (It also reads `?chatApi=…`.)
+4. Open the chat — the header now shows the live mode: ✨ demo voice / real AI.
+
 Tunable caps: `CHAT_DAILY_DEVICE` (20), `CHAT_DAILY_IP` (30), `CHAT_DAILY_GLOBAL` (1000).
-The PWA talks to the journal server's `/api/chat` — set `apiBase` in `pwa/app.js`
-to your deployed URL when you ship it.
 
 ## 🔒 Privacy
 

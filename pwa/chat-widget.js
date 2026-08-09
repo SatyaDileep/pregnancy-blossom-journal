@@ -49,6 +49,7 @@
     history: [],
     pendingPrompt: null,
     demoMode: false,
+    mode: null, // null=unknown · 'gemini'=real AI · 'mock'=demo voice · 'off'=sleeping
     byokOpen: false
   };
   try { state.history = JSON.parse(lsGet(LS.history) || '[]'); } catch (e) { state.history = []; }
@@ -180,6 +181,7 @@
       base = 'your tiny companion 🌱';
     }
     if (state.demoMode && !state.ownKey) base += ' · ✨ demo voice';
+    else if (state.mode === 'off') base += ' · 💤 ai is sleeping';
     return base;
   }
 
@@ -435,23 +437,10 @@
       })
       .then(function (r) {
         if (r.res.ok) {
+          state.mode = r.d.mode;
           state.demoMode = (r.d.mode === 'mock');
           finish(r.d.reply);
-          // surface "demo voice" right away: status line + the tap-to-add-key hint
-          if (state.demoMode && !state.ownKey) {
-            var st = panel.querySelector('.bc-status');
-            if (st) st.textContent = statusLine();
-            var inRow = panel.querySelector('.bc-inputrow');
-            if (inRow && !panel.querySelector('#bc-demo')) {
-              inRow.insertAdjacentHTML('beforebegin', '<button type="button" class="bc-demo" id="bc-demo" title="The app is running in demo voice because no AI key is set">✨ demo voice — tap to use your own AI key</button>');
-              var db = panel.querySelector('#bc-demo');
-              if (db) db.addEventListener('click', function () {
-                state.byokOpen = true;
-                render();
-                panel.querySelector('#bc-key').focus();
-              });
-            }
-          }
+          refreshStatusUI(); // surface "demo voice" right after the first reply
           return;
         }
         if (r.d.code === 'chat_limit') {
@@ -493,6 +482,47 @@
       });
   }
 
+  /* refresh the status line + demo-voice hint from the current mode (used
+     right after the first reply AND when /api/chat/config arrives) */
+  function openByok() {
+    state.byokOpen = true;
+    render();
+    var k = panel.querySelector('#bc-key');
+    if (k) k.focus();
+  }
+
+  function refreshStatusUI() {
+    var st = panel.querySelector('.bc-status');
+    if (st) st.textContent = statusLine();
+    if (!state.consent || !panel.classList.contains('bc-open')) return;
+    if (state.demoMode && !state.ownKey) {
+      var inRow = panel.querySelector('.bc-inputrow');
+      if (inRow && !panel.querySelector('#bc-demo')) {
+        inRow.insertAdjacentHTML('beforebegin', '<button type="button" class="bc-demo" id="bc-demo" title="The app is running in demo voice because no AI key is set">✨ demo voice — tap to use your own AI key</button>');
+        var db = panel.querySelector('#bc-demo');
+        if (db) db.addEventListener('click', openByok);
+      }
+    } else {
+      var hint = panel.querySelector('#bc-demo');
+      if (hint) hint.remove();
+    }
+  }
+
+  /* ask the backend what mode it runs in (real AI / demo / off) so the UI
+     is honest before the first message; never sends or receives content */
+  function fetchConfig() {
+    fetch(cfg.apiBase + '/api/chat/config')
+      .then(function (r) { return r.json().catch(function () { return null; }); })
+      .then(function (d) {
+        if (d && typeof d.enabled === 'boolean') {
+          state.mode = d.enabled ? 'gemini' : d.mock ? 'mock' : 'off';
+          state.demoMode = state.mode === 'mock';
+          refreshStatusUI();
+        }
+      })
+      .catch(function () { /* backend not reachable yet — stay silent */ });
+  }
+
   function open() {
     state.open = true;
     panel.classList.add('bc-open');
@@ -530,6 +560,11 @@
     init: function (opts) {
       cfg = Object.assign({}, cfg, opts || {});
       build();
+      fetchConfig();
+    },
+    setApiBase: function (url) {
+      cfg.apiBase = String(url || '').replace(/\/+$/, '');
+      fetchConfig();
     },
     open: open,
     openWith: function (prompt) {

@@ -26,16 +26,22 @@ module.exports = function registerChat(app, guide) {
   const STATS_FILE = path.join(DATA_DIR, 'chat-stats.json');
   const ENV_FILE = path.join(DATA_DIR, '.env.local');
 
-  /* --- tiny .env.local loader (env vars always win) --- */
-  try {
-    if (fs.existsSync(ENV_FILE)) {
-      const lines = fs.readFileSync(ENV_FILE, 'utf8').split('\n');
+  /* --- tiny .env loaders (real process.env vars always win) ---
+     Root .env is the deploy-friendly template (cp .env.example .env, or set
+     env vars on Render/Railway/Netlify); data/.env.local is the private
+     local override (gitignored). */
+  function loadDotEnv(file) {
+    try {
+      if (!fs.existsSync(file)) return;
+      const lines = fs.readFileSync(file, 'utf8').split('\n');
       for (const line of lines) {
         const m = /^\s*([A-Z0-9_]+)\s*=\s*(.*?)\s*$/.exec(line);
         if (m && !(m[1] in process.env)) process.env[m[1]] = m[2];
       }
-    }
-  } catch (e) { /* ignore */ }
+    } catch (e) { /* ignore */ }
+  }
+  loadDotEnv(path.join(__dirname, '.env'));
+  loadDotEnv(ENV_FILE);
 
   const CHAT = {
     model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
@@ -48,6 +54,13 @@ module.exports = function registerChat(app, guide) {
   const GEMINI_KEY = process.env.GEMINI_API_KEY || '';
   const GEMINI_ENABLED = !!GEMINI_KEY;
   const MOCK_ENABLED = !GEMINI_ENABLED && process.env.CHAT_ALLOW_MOCK !== '0';
+  /* optional scoped CORS: comma-separated origins in CHAT_CORS_ORIGINS.
+     Leave empty to allow any origin (fine for a personal journal); set it
+     once the app is public so only your deployed front-ends can call chat. */
+  const CORS_ORIGINS = String(process.env.CHAT_CORS_ORIGINS || '')
+    .split(',')
+    .map((s) => s.trim().replace(/\/+$/, ''))
+    .filter(Boolean);
 
   /* --- anonymous stats store (daily aggregates only — no content, no PII) --- */
   function todayISO() {
@@ -259,13 +272,34 @@ module.exports = function registerChat(app, guide) {
   }
 
   /* --- routes --- */
-  // CORS: the PWA (different origin) is allowed to talk to this endpoint.
+  // CORS: by default any origin may talk to chat (the PWA runs from a
+  // different origin); when CHAT_CORS_ORIGINS is set, only listed origins
+  // (plus same-origin) are allowed.
   app.use('/api/chat', (req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    const origin = req.headers.origin;
+    let allow = '*';
+    if (CORS_ORIGINS.length) {
+      allow = origin && CORS_ORIGINS.includes(String(origin).replace(/\/+$/, '')) ? origin : '';
+    }
+    if (allow) {
+      res.setHeader('Access-Control-Allow-Origin', allow);
+      if (allow !== '*') res.setHeader('Vary', 'Origin');
+    }
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    if (req.method === 'OPTIONS') return res.sendStatus(204);
+    if (req.method === 'OPTIONS') return res.sendStatus(allow ? 204 : 403);
     next();
+  });
+
+  /* public chat config — lets clients show the right mode (real AI / demo
+     voice / sleeping) before the first message; never exposes secrets */
+  app.get('/api/chat/config', (req, res) => {
+    res.json({
+      enabled: GEMINI_ENABLED,
+      mock: !GEMINI_ENABLED && MOCK_ENABLED,
+      model: CHAT.model,
+      caps: { device: CHAT.dailyPerDevice, ip: CHAT.dailyPerIp, global: CHAT.dailyGlobal }
+    });
   });
 
   app.post('/api/chat', async (req, res) => {

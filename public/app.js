@@ -2027,6 +2027,13 @@ function chatContext() {
   applyTheme();
   renderAll();
   if (window.BlossomChat) {
-    window.BlossomChat.init({ apiBase: '', getContext: chatContext });
+    // same-origin by default; ?chatApi=… lets a deployed page point Blossom
+    // at a separate chat backend without rebuilding
+    let chatApi = '';
+    try {
+      const q = new URLSearchParams(location.search).get('chatApi');
+      if (q) chatApi = q.replace(/\/+$/, '');
+    } catch (e) {}
+    window.BlossomChat.init({ apiBase: chatApi, getContext: chatContext });
   }
 })();

@@ -47,7 +47,9 @@
     ownKey: lsGet(LS.ownKey) || '',
     busy: false,
     history: [],
-    pendingPrompt: null
+    pendingPrompt: null,
+    demoMode: false,
+    byokOpen: false
   };
   try { state.history = JSON.parse(lsGet(LS.history) || '[]'); } catch (e) { state.history = []; }
   if (!Array.isArray(state.history)) state.history = [];
@@ -131,9 +133,16 @@
       '.bc-btn-main{background:linear-gradient(135deg,var(--rose),var(--lav));color:#fff;box-shadow:0 6px 16px var(--shadow-2)}' +
       '.bc-btn-ghost{background:transparent;color:var(--ink-soft);border:1px solid var(--border-soft)}' +
       '.bc-link{border:0;background:none;color:var(--rose);font-size:13px;cursor:pointer;text-decoration:underline;padding:0}' +
+      '.bc-key{border:0;background:transparent;font-size:16px;cursor:pointer;width:34px;height:34px;border-radius:50%;color:var(--ink-soft);flex-shrink:0}' +
+      '.bc-key:hover{background:var(--accent-rgba)}' +
+      '.bc-key.bc-on{background:var(--butter);color:#8a6d3b}' +
+      '.bc-demo{border:1px dashed var(--rose);background:var(--accent-rgba);color:var(--rose);border-radius:999px;padding:7px 13px;font-size:12.5px;cursor:pointer;font-family:var(--hand,\'Patrick Hand\',cursive);margin:0 14px;transition:all .2s}' +
+      '.bc-demo:hover{background:var(--rose);color:#fff}' +
       '.bc-byok{display:none;flex-direction:column;gap:10px;background:var(--paper);border:1px dashed var(--border-soft);border-radius:16px;padding:14px}' +
       '.bc-byok.bc-show{display:flex}' +
       '.bc-byok input{border:1px solid var(--border-soft);border-radius:12px;padding:9px 12px;font:13px var(--hand,' + "'Patrick Hand'" + ',cursive);background:var(--warm-bg);color:var(--ink)}' +
+      '.bc-byok-row{display:flex;gap:8px}' +
+      '.bc-byok-note{font-size:12.5px;color:var(--ink-soft);line-height:1.5}' +
       '@media (max-width:480px){.bc-panel{right:10px;left:10px;bottom:78px;width:auto}}'
     );
   }
@@ -163,19 +172,27 @@
 
   function statusLine() {
     var ctx = context();
+    var base = '';
     if (ctx && ctx.week) {
       var tri = ctx.trimester === 1 ? '1st' : ctx.trimester === 2 ? '2nd' : '3rd';
-      return 'Week ' + ctx.week + ' · ' + tri + ' trimester';
+      base = 'Week ' + ctx.week + ' · ' + tri + ' trimester';
+    } else {
+      base = 'your tiny companion 🌱';
     }
-    return 'your tiny companion 🌱';
+    if (state.demoMode && !state.ownKey) base += ' · ✨ demo voice';
+    return base;
   }
 
   function render() {
     var baby = escapeHtml((context() || {}).babyNickname || 'little one');
     var modeBadge = state.ownKey ? '<span class="bc-badge">my key</span>' : '';
+    var keyBtn = state.consent
+      ? '<button type="button" class="bc-key' + (state.ownKey ? ' bc-on" id="bc-keybtn" title="Using your own AI key — tap to change"' : '" id="bc-keybtn" title="Add your own AI key for real replies"') + ' aria-label="AI key">🔑</button>'
+      : '';
     var head =
       '<div class="bc-head"><div class="bc-ava">👶</div>' +
       '<div><h3>Blossom Baby ' + modeBadge + '</h3><div class="bc-status">' + escapeHtml(statusLine()) + '</div></div>' +
+      keyBtn +
       '<button type="button" class="bc-x" aria-label="Close chat">✕</button></div>';
     var body = '';
     var foot = '';
@@ -201,8 +218,19 @@
         return '<div class="bc-msg ' + cls + '">' + escapeHtml(m.content) + '</div>';
       }).join('');
       body = '<div class="bc-body" id="bc-msgs">' + (msgs || '<div class="bc-note">' + greeting() + '</div>') + '</div>';
+      var demoHint = state.demoMode && !state.ownKey
+        ? '<button type="button" class="bc-demo" id="bc-demo" title="The app is running in demo voice because no AI key is set">✨ demo voice — tap to use your own AI key</button>'
+        : '';
+      var byokPanel =
+        '<div class="bc-byok' + (state.byokOpen ? ' bc-show' : '') + '" id="bc-byok">' +
+        '<span class="bc-byok-note">Add your own Gemini API key (free at aistudio.google.com → Get API key) and your chats go <b>straight from this device to Google</b> — they never touch the app server. Save it and real AI replies turn on instantly.</span>' +
+        '<input id="bc-key" type="password" placeholder="AIza…" value="' + escapeHtml(state.ownKey) + '">' +
+        '<div class="bc-byok-row"><button type="button" class="bc-btn bc-btn-ghost" id="bc-key-save">💛 Save my key</button><button type="button" class="bc-btn bc-btn-ghost" id="bc-key-clear">Use the app key instead</button></div>' +
+        '</div>';
       foot =
         '<div class="bc-chips" id="bc-chips"></div>' +
+        byokPanel +
+        demoHint +
         '<div class="bc-inputrow"><input class="bc-in" id="bc-in" placeholder="Tell me something…" autocomplete="off"><button type="button" class="bc-send" id="bc-send" aria-label="Send">➤</button></div>' +
         '<div class="bc-foot">💛 Blossom is a cheerleader, not a doctor — for medical concerns trust your midwife or doctor. Replies come from an AI provider; nothing is stored or used for training.</div>';
     }
@@ -249,6 +277,45 @@
       els.in.addEventListener('keydown', function (e) { if (e.key === 'Enter') send(els.in.value); });
       els.in.focus();
       scrollBottom();
+    }
+
+    // key button → open/close the bring-your-own-key panel (chat view)
+    var keyBtn = panel.querySelector('#bc-keybtn');
+    if (keyBtn) {
+      keyBtn.addEventListener('click', function () {
+        state.byokOpen = !state.byokOpen;
+        render();
+        if (state.byokOpen) panel.querySelector('#bc-key').focus();
+      });
+    }
+    var keySave = panel.querySelector('#bc-key-save');
+    if (keySave) {
+      keySave.addEventListener('click', function () {
+        var k = panel.querySelector('#bc-key').value.trim();
+        state.ownKey = k;
+        state.byokOpen = false;
+        if (k) lsSet(LS.ownKey, k); else lsDel(LS.ownKey);
+        toast('Your key is saved — chats now go straight to Google. 🔐');
+        render();
+      });
+    }
+    var keyClear = panel.querySelector('#bc-key-clear');
+    if (keyClear) {
+      keyClear.addEventListener('click', function () {
+        state.ownKey = '';
+        state.byokOpen = false;
+        lsDel(LS.ownKey);
+        toast('Back to the app key.');
+        render();
+      });
+    }
+    var demoBtn = panel.querySelector('#bc-demo');
+    if (demoBtn) {
+      demoBtn.addEventListener('click', function () {
+        state.byokOpen = true;
+        render();
+        panel.querySelector('#bc-key').focus();
+      });
     }
   }
 
@@ -367,7 +434,26 @@
         return res.json().then(function (d) { return { res: res, d: d }; });
       })
       .then(function (r) {
-        if (r.res.ok) { finish(r.d.reply); return; }
+        if (r.res.ok) {
+          state.demoMode = (r.d.mode === 'mock');
+          finish(r.d.reply);
+          // surface "demo voice" right away: status line + the tap-to-add-key hint
+          if (state.demoMode && !state.ownKey) {
+            var st = panel.querySelector('.bc-status');
+            if (st) st.textContent = statusLine();
+            var inRow = panel.querySelector('.bc-inputrow');
+            if (inRow && !panel.querySelector('#bc-demo')) {
+              inRow.insertAdjacentHTML('beforebegin', '<button type="button" class="bc-demo" id="bc-demo" title="The app is running in demo voice because no AI key is set">✨ demo voice — tap to use your own AI key</button>');
+              var db = panel.querySelector('#bc-demo');
+              if (db) db.addEventListener('click', function () {
+                state.byokOpen = true;
+                render();
+                panel.querySelector('#bc-key').focus();
+              });
+            }
+          }
+          return;
+        }
         if (r.d.code === 'chat_limit') {
           finish('I\'ve chatted lots today, mama — my little voice is sleepy. 💛 Let\'s talk again tomorrow! (Or add your own key in the chat settings to keep going anytime.)');
           return;

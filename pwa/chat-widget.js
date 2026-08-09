@@ -154,13 +154,14 @@
         'box-shadow:0 20px 60px var(--shadow-3);font-family:var(--serif,Georgia,serif);color:var(--ink)}' +
       '.bc-panel.bc-open{display:flex;animation:bcIn .28s cubic-bezier(.22,1,.36,1)}' +
       '@keyframes bcIn{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}' +
-      '.bc-head{display:flex;align-items:center;gap:11px;padding:14px 16px;background:linear-gradient(135deg,var(--rose-soft,#f0c9cc),var(--warm-bg));border-bottom:1px solid var(--border-soft)}' +
-      '.bc-ava{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--butter),var(--rose));display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 10px var(--shadow-2);animation:bcBob 3s ease-in-out infinite}' +
+      '.bc-head{display:flex;align-items:center;gap:10px;padding:12px 14px;background:linear-gradient(135deg,var(--rose-soft,#f0c9cc),var(--warm-bg));border-bottom:1px solid var(--border-soft)}' +
+      '.bc-ava{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--butter),var(--rose));display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 3px 8px var(--shadow-2);flex-shrink:0}' +
+      '.bc-actions{display:flex;align-items:center;gap:2px;margin-left:auto}' +
       '@keyframes bcBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}' +
       '.bc-head h3{margin:0;font-size:17px;font-family:var(--hand,' + "'Patrick Hand'" + ',cursive);color:var(--ink);line-height:1.1}' +
       '.bc-status{font-size:12px;color:var(--ink-soft);margin-top:2px}' +
       '.bc-badge{margin-left:4px;padding:1px 8px;border-radius:999px;background:var(--butter);color:#8a6d3b;font-size:10px;vertical-align:middle}' +
-      '.bc-x{margin-left:auto;border:0;background:transparent;font-size:18px;color:var(--ink-soft);cursor:pointer;width:34px;height:34px;border-radius:50%}' +
+      '.bc-x{border:0;background:transparent;font-size:18px;color:var(--ink-soft);cursor:pointer;width:34px;height:34px;border-radius:50%}' +
       '.bc-x:hover{background:var(--accent-rgba);color:var(--ink)}' +
       '.bc-body{flex:1;overflow-y:auto;padding:16px 14px 8px;background:var(--paper-2,#fff9ec);display:flex;flex-direction:column;gap:10px;min-height:0}' +
       '.bc-msg{max-width:82%;padding:10px 14px;border-radius:18px;font-size:15px;line-height:1.45;word-wrap:break-word;animation:bcIn .22s ease;font-family:inherit,\'Segoe UI Emoji\',\'Apple Color Emoji\',\'Noto Color Emoji\'}' +
@@ -288,10 +289,8 @@
       : '';
     var head =
       '<div class="bc-head"><div class="bc-ava">👶</div>' +
-      '<div><h3>Blossom Baby ' + modeBadge + '</h3><div class="bc-status">' + escapeHtml(statusLine()) + '</div></div>' +
-      fullBtn +
-      keyBtn +
-      '<button type="button" class="bc-x" aria-label="Close chat">✕</button></div>';
+      '<div class="bc-id"><h3>Blossom Baby ' + modeBadge + '</h3><div class="bc-status">' + escapeHtml(statusLine()) + '</div></div>' +
+      '<div class="bc-actions">' + fullBtn + keyBtn + '<button type="button" class="bc-x" aria-label="Close chat">✕</button></div></div>';
     var body = '';
     var foot = '';
 
@@ -319,7 +318,7 @@
       var demoHint = state.demoMode && !state.ownKey
         ? '<button type="button" class="bc-demo" id="bc-demo" title="The app is running in demo voice because no AI key is set">✨ demo voice — tap to use your own AI key</button>'
         : '';
-      var convo = state.history.length > 1; // past the blank slate?
+      var convo = state.history.length > 0; // past the blank slate?
       var sugBtn = convo
         ? '<button type="button" class="bc-sugbtn" id="bc-suggest" title="Suggestions" aria-label="Suggestions">💡</button>'
         : '';
@@ -509,7 +508,7 @@
   function renderChips() {
     var box = panel.querySelector('#bc-chips');
     if (!box) return;
-    if (state.history.length > 1) { box.innerHTML = ''; return; } // pills only in the blank slate
+    if (state.history.length > 0) { box.innerHTML = ''; return; } // pills only in the true blank slate
     var chips = suggestionGroups().map(function (g) { return g.items[0]; }).slice(0, 4);
     box.innerHTML = chips
       .map(function (c) { return '<button type="button" class="bc-chip">' + escapeHtml(c) + '</button>'; })

@@ -324,14 +324,14 @@ class _BlossomBotSheetState extends State<_BlossomBotSheet> {
       child: Row(
         children: [
           Container(
-            width: 44,
-            height: 44,
+            width: 32,
+            height: 32,
             alignment: Alignment.center,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: LinearGradient(colors: [palette.roseSoft, palette.lavender]),
             ),
-            child: const Text('👶', style: TextStyle(fontSize: 22)),
+            child: const Text('👶', style: TextStyle(fontSize: 16)),
           ),
           const SizedBox(width: 12),
           Expanded(

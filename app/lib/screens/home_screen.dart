@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/guide_data.dart';
 import '../models/journal_settings.dart';
 import '../theme/app_themes.dart';
+import '../widgets/blossom_bot.dart';
 
 /// The native app's home — a warm cover, a live theme picker, and the
 /// week-by-week guidance loaded from the shared content asset. The journal
@@ -18,6 +19,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late final Future<GuideData> _guideFuture;
   late JournalSettings _settings;
+  GuideData? _guide; // resolved once, so the chat hooks have it ready
 
   @override
   void initState() {
@@ -26,12 +28,33 @@ class _HomeScreenState extends State<HomeScreen> {
     _settings = JournalSettings.defaults;
   }
 
+  void _openBot({String? prompt}) {
+    BlossomBot.show(context, guide: _guide, settings: _settings, initialPrompt: prompt);
+  }
+
+  /// The pregnancy week right now (from LMP/due date), or null when no dates
+  /// are set — mirrors the web app's current-week chip.
+  int? get _currentWeek {
+    final today = DateTime.now();
+    final iso = '${today.year.toString().padLeft(4, '0')}-'
+        '${today.month.toString().padLeft(2, '0')}-'
+        '${today.day.toString().padLeft(2, '0')}';
+    return weekFromDate(_settings, iso);
+  }
+
   @override
   Widget build(BuildContext context) {
     final palette = ThemeScope.of(context);
     final theme = Theme.of(context);
 
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _openBot(),
+        tooltip: 'Talk to little one',
+        backgroundColor: palette.rose,
+        foregroundColor: palette.paper,
+        child: const Text('👶', style: TextStyle(fontSize: 24)),
+      ),
       body: Stack(
         children: [
           // Soft glow washes, like the web app's background.
@@ -66,14 +89,26 @@ class _HomeScreenState extends State<HomeScreen> {
               future: _guideFuture,
               builder: (context, snapshot) {
                 final guide = snapshot.data ?? GuideLoader.empty;
+                _guide = guide; // remember for the chat hooks
                 return ListView(
                   padding: const EdgeInsets.fromLTRB(20, 18, 20, 32),
                   children: [
-                    _CoverCard(settings: _settings, palette: palette),
+                    _CoverCard(settings: _settings, palette: palette, onTalk: () => _openBot()),
                     const SizedBox(height: 18),
                     _ThemePicker(current: palette),
                     const SizedBox(height: 18),
-                    _GuideSection(guide: guide, palette: palette),
+                    _GuideSection(
+                      guide: guide,
+                      palette: palette,
+                      askWeek: _currentWeek,
+                      onAsk: (w) {
+                        if (w != null && guide.week(w) != null) {
+                          _openBot(prompt: _askPrompt(w, _settings.babyNickname));
+                        } else {
+                          _openBot(); // no dates yet — just open the chat
+                        }
+                      },
+                    ),
                     const SizedBox(height: 18),
                     _NextCard(theme: theme, palette: palette),
                   ],
@@ -87,11 +122,17 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
+String _askPrompt(int week, String nickname) {
+  final baby = nickname.trim().isEmpty ? 'little one' : nickname.trim();
+  return 'What is happening with me and $baby in week $week?';
+}
+
 class _CoverCard extends StatelessWidget {
-  const _CoverCard({required this.settings, required this.palette});
+  const _CoverCard({required this.settings, required this.palette, required this.onTalk});
 
   final JournalSettings settings;
   final BlossomPalette palette;
+  final VoidCallback onTalk;
 
   @override
   Widget build(BuildContext context) {
@@ -128,6 +169,21 @@ class _CoverCard extends StatelessWidget {
                 _softPill(context, '🌷 2nd · weeks 14–27'),
                 _softPill(context, '🌙 3rd · weeks 28–40'),
               ],
+            ),
+            const SizedBox(height: 18),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: onTalk,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: palette.rose,
+                  side: BorderSide(color: palette.rose.withValues(alpha: 0.45)),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                ),
+                icon: const Text('👶', style: TextStyle(fontSize: 17)),
+                label: const Text('Talk to little one'),
+              ),
             ),
           ],
         ),
@@ -238,10 +294,17 @@ class _ThemePicker extends StatelessWidget {
 }
 
 class _GuideSection extends StatelessWidget {
-  const _GuideSection({required this.guide, required this.palette});
+  const _GuideSection({
+    required this.guide,
+    required this.palette,
+    required this.askWeek,
+    required this.onAsk,
+  });
 
   final GuideData guide;
   final BlossomPalette palette;
+  final int? askWeek; // current pregnancy week from the settings, or null
+  final void Function(int? week) onAsk;
 
   @override
   Widget build(BuildContext context) {
@@ -264,6 +327,22 @@ class _GuideSection extends StatelessWidget {
           'Every week 4–40, with love: baby\u2019s size, growth, common '
           'feelings — and a gentle analogy.',
           style: theme.textTheme.bodySmall,
+        ),
+        const SizedBox(height: 12),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: ActionChip(
+            avatar: const Text('👶', style: TextStyle(fontSize: 14)),
+            label: Text(
+              askWeek != null && guide.week(askWeek!) != null
+                  ? 'Ask Blossom about week $askWeek'
+                  : 'Chat with Blossom',
+            ),
+            backgroundColor: palette.paper2,
+            side: BorderSide(color: palette.rose.withValues(alpha: 0.4)),
+            labelStyle: TextStyle(color: palette.rose, fontWeight: FontWeight.w700, fontSize: 13),
+            onPressed: () => onAsk(askWeek),
+          ),
         ),
         const SizedBox(height: 14),
         if (guide.trimesters.isEmpty)

@@ -1,7 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Talk to the AI companion server (chat + artwork). -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- usesCleartextTraffic lets a dev/QA build talk to a plain-http companion
+         server on the local network (e.g. http://192.168.x.x:51889). When the
+         app ships against a public https backend, this can be removed. -->
     <application
         android:label="Blossom"
         android:name="${applicationName}"
+        android:usesCleartextTraffic="true"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

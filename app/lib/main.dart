@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart' show SemanticsBinding;
 
 import 'screens/home_screen.dart';
 import 'theme/app_themes.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Expose the accessibility/semantics tree from the start — makes the app
+  // screen-reader friendly and lets assistive tech explore every control.
+  SemanticsBinding.instance.ensureSemantics();
   runApp(const BlossomApp());
 }
 

@@ -8,6 +8,7 @@ void main() {
 
     expect(find.text('Our Journey To You'), findsOneWidget);
     expect(find.text('Pick your colour'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Week-by-week guidance'), 200);
     expect(find.text('Week-by-week guidance'), findsOneWidget);
   });
 

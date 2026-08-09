@@ -34,9 +34,13 @@ node tools/sync_guide.mjs   # public/guide-data.js → app/assets/guide_data.jso
 cd app
 flutter run                # your connected device / emulator
 flutter run -d chrome      # quick web preview
-flutter test               # smoke tests
+flutter test               # smoke tests (live-server chat tests skip if offline)
 flutter analyze            # lint gate — keep this clean
 ```
+
+> **Blossom Baby chat needs the companion server** (`node server.js` in the
+> repo root, or your deployed backend). Point the app at it once via the ⚙️
+> button in the chat header — full guide: **[docs/BABY_BOT.md](docs/BABY_BOT.md)**.
 
 ## Installing on a phone
 
@@ -60,12 +64,19 @@ flutter analyze            # lint gate — keep this clean
   `server.js` (Naegele +280, guarded against NaN).
 - **Guide content** — loaded from the shared JSON asset with a graceful
   fallback so the app never crashes on a stale asset.
+- **Blossom Baby chat** — the full consent-first companion (real AI / demo
+  voice / sleeping status, week badge, markdown-lite replies, suggestion
+  chips + 💡 modal, typing indicator, ⚙️ server URL settings) talking to the
+  **same backend** as the web/PWA. Live integration tests in
+  `test/blossom_api_test.dart`. See **[docs/BABY_BOT.md](docs/BABY_BOT.md)**.
 
 ## Next milestones (in order)
 
 1. **Storage** — local persistence (Isar/Hive), settings + entries + photos.
 2. **Backup import** — read the PWA export JSON (pages + photos + settings).
 3. **Journal UI** — the carousel + stacked views, drag-reorder, the editor.
-4. **Keepsake** — export/print the book from the phone.
-5. **Companion layer** — the baby bot, care team, learning hub (shared backend
-   proxy, per the PRD).
+4. **AI artwork** — wire `POST /api/art-generate` to pages once photos land
+   locally (the endpoint already exists and is CORS-ready).
+5. **Keepsake** — export/print the book from the phone.
+6. **Companion depth** — BYOK, care team, learning hub (shared backend proxy,
+   per the PRD).

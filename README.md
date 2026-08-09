@@ -157,6 +157,9 @@ spiral-bound keepsake book you'll hand your little one one day.
 
 ## 🗺 Roadmap
 
+> 📄 **Full product vision, architecture and decisions live in [`PRD.md`](PRD.md).**
+> The short version below is the spark; the PRD is the blueprint.
+
 This is a beginning, not the end. Here's where this little journal is headed:
 
 - **A real, full-fledged app** — on the **App Store and Google Play**, not just

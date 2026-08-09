@@ -2465,6 +2465,16 @@ function wire() {
   });
 
   $('#btn-guide').addEventListener('click', openJourneyGuide);
+  const chatCover = $('#btn-chat-cover');
+  if (chatCover) chatCover.addEventListener('click', () => {
+    if (window.BlossomChat) window.BlossomChat.open();
+  });
+  const guideAsk = $('#guide-ask');
+  if (guideAsk) guideAsk.addEventListener('click', () => {
+    if (window.BlossomChat) {
+      window.BlossomChat.openWith(`What is happening with me and ${settings.babyNickname || 'little one'} in week ${guideOpenWeek || 12}?`);
+    }
+  });
   $('#journey-close').addEventListener('click', closeJourneyGuide);
   $('#journey-overlay').addEventListener('click', (e) => {
     if (e.target === $('#journey-overlay')) closeJourneyGuide();
@@ -2519,6 +2529,32 @@ function wire() {
   window.addEventListener('load', relayoutCarousel);
 }
 
+/* ---------------- Blossom Baby (AI companion) ---------------- */
+/* Live context for the chat widget: current week from the dates, plus a tiny
+   non-photo digest of the family's recent pages (titles + weeks only — the
+   widget only sends it if mama opted in during consent). */
+function chatContext() {
+  const cur = currentWeek();
+  const recent = entries
+    .filter((e) => e.date || e.week)
+    .slice(-4)
+    .map((e) => {
+      const w = e.date ? weeksAt(e.date) : e.week ? { week: e.week } : null;
+      return `Week ${w ? w.week : '?'} — ${e.title || 'a page'}`;
+    })
+    .join(' · ');
+  return {
+    week: cur ? cur.week : null,
+    trimester: cur ? cur.trimester : null,
+    dueDate: settings.dueDate || '',
+    lmpDate: settings.lmpDate || '',
+    mamaName: settings.mamaName || '',
+    papaName: settings.papaName || '',
+    babyNickname: settings.babyNickname || '',
+    digest: recent
+  };
+}
+
 /* ---------------- init ---------------- */
 (async function init() {
   wire();
@@ -2538,6 +2574,11 @@ function wire() {
   }
   applyTheme();
   renderAll();
+  if (window.BlossomChat) {
+    // The PWA talks to the journal server for the shared-key chat. When you
+    // deploy, change this to your deployed server URL.
+    window.BlossomChat.init({ apiBase: 'http://localhost:51889', getContext: chatContext });
+  }
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(() => {});
   }

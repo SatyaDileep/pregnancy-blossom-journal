@@ -203,29 +203,32 @@ little one inside*. It is:
 
 **Recommendation: Option B as the default.** Details:
 
-- **Provider**: **Groq first** (fast, cheap, generous free tier, Llama-class
-  models that are plenty empathetic at this scale). **OpenRouter** as a
-  fallback/alternative (model variety). Abstraction layer so the provider is a
+- **Provider (shipped 2026-08)**: **Gemini 2.5 Flash first** — excellent
+  empathetic short replies, a generous free tier, and a browser-friendly API
+  that makes BYOK clean (the user's own key calls Google directly). The
+  provider lives behind a thin adapter, so swapping to Groq/OpenRouter is a
   one-line switch.
-- **The "key" never ships in the client.** A small serverless/Express proxy
-  (one endpoint, e.g. `POST /api/chat`) holds the key, applies rate limits, and
-  streams the reply. The public/PWA clients call the proxy only.
-- **Caps**: per-user **30 messages/day** (generous for daily companionship,
-  bounded for cost); a **global monthly budget** (hard stop + founder alert).
-  Queue/backoff + caching of common queries ("what fruit is baby this week?")
-  to cut cost further.
-- **Model + cost math (planning figure)**: ~2k tokens in / 500 out per message.
-  Groq Llama-3.3-70B ≈ $0.59/M in, $0.79/M out → ≈ **$0.002/message**. 30 msgs
-  × 30 days ≈ **$1.60/user/month worst-case**, realistically far less
-  (cache + caps + most users chat a few times a week). With a $50/mo budget
-  you can comfortably serve a few hundred active users in the early phase.
-- **BYOK later**: Phase 2.5 adds an advanced "bring your own key" toggle for
-  privacy purists/power users (Gemini/OpenRouter/Groq keys stored locally,
-  calls go direct from the device) — as an *option*, never the default.
+- **The "key" never ships in the client.** `POST /api/chat` in `server.js`
+  (module: `chat-server.js`) holds the key, checks a **red-line lexicon before
+  any model call**, applies daily caps, and replies. The public/PWA clients
+  call the proxy only.
+- **Caps (shipped)**: **20 messages/day per device**, **30/day per IP**, and a
+  **1000/day global hard stop** (all tunable via env: `CHAT_DAILY_DEVICE`,
+  `CHAT_DAILY_IP`, `CHAT_DAILY_GLOBAL`). Mock mode (cute, week-grounded canned
+  replies) is ON when no key is set, so the whole experience works before a
+  key exists — the dashboard shows MOCK mode.
+- **Cost math (planning figure)**: ~2k tokens in / 500 out per message. Gemini
+  2.5 Flash is effectively pennies per message on the free tier; even on paid
+  it lands well under **$0.001/message**. Caps make a $50/mo budget cover a
+  few hundred active users comfortably.
+- **BYOK (shipped as an advanced option, never the default)**: a "bring my own
+  key" toggle on the chat's consent screen — the key stays on the device and
+  messages go **straight to Google**, never through the app server.
 - **Analytics (P2-compliant)**: aggregate counters only — messages served,
-  active users/day (anonymized device hash), week distribution, language,
-  feature usage. **No message content, no journal content, no PII.** Opt-in
-  and clearly disclosed.
+  active devices/day (anonymized device hash). **No message content, no
+  journal content, no PII.** Exposed to the founder via `GET /api/chat/stats`
+  (token-gated) and a small dashboard at `/admin` (`CHAT_ADMIN_TOKEN`).
+  BYOK usage is invisible by design (it never touches the server).
 
 #### 5.3 Architecture
 
@@ -433,7 +436,7 @@ carousel + stacked + themes, and a clear offline story (the journal's soul).
 
 | # | Decision | Choice | Why |
 |---|---|---|---|
-| D1 | Bot key strategy | **Provisioned key (Groq) behind a proxy with caps** | Best UX + cost control + anonymous usage analytics; Google-sign-in is rejected as primary UX |
+| D1 | Bot key strategy | **Hybrid (shipped): provisioned Gemini key behind a proxy with caps + optional BYOK** | Seamless UX for everyone, cost + abuse controlled by per-device/IP/global daily caps, anonymous founder analytics, and a privacy-escape-hatch (BYOK) for those who want zero server involvement; Google-sign-in rejected as primary UX |
 | D2 | Bot identity | Toddler persona speaking as the baby, grounded in `guide-data` + LMP + (opt-in) journal digest | Feels like *her* baby, not another generic assistant |
 | D3 | Bot medical stance | "Medical empathy, never medical advice" + red-line escalation | Keeps the brand warm, the liability low, and mothers safe |
 | D4 | Doctor finder | Google Places via proxy; "My care team" fully local | Splits utility from privacy cleanly |

@@ -63,6 +63,7 @@
             <span class="sticker sticker-soft" id="cover-trim" hidden></span>
           </div>
           <button type="button" class="btn btn-guide" id="btn-guide" title="A week-by-week look at what is happening for you and little one">📖 Week-by-week guide</button>
+          <button type="button" class="btn btn-chat" id="btn-chat-cover" title="Talk to your little one — a cute AI companion grounded in this week">💬 Talk to little one</button>
           <button type="button" class="btn btn-dates" id="cover-dates" hidden title="Add your last period date and we'll calculate every week for you">📅 Add your dates</button>
           <p class="cover-footnote" id="cover-footnote">begun <span id="cover-start"></span></p>
         </div>
@@ -181,6 +182,7 @@
       </div>
       <div class="modal-body" id="guide-body"></div>
       <div class="modal-foot guide-foot">
+        <button class="btn btn-ghost btn-sm" id="guide-ask" title="Ask Blossom Baby about this week">💬 Ask about this week</button>
         <button class="btn btn-ghost btn-sm" id="guide-prev">‹ earlier week</button>
         <button class="btn btn-primary btn-sm" id="guide-next">later week ›</button>
       </div>
@@ -292,6 +294,7 @@
 
   <script src="guide-data.js"></script>
   <script src="art-prompts.js"></script>
+  <script src="chat-widget.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

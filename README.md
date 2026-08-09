@@ -253,6 +253,33 @@ installation and data-migration details.
 - `placeholder.js` — placeholder helpers
 - `test-api.js` — smoke-test the API
 
+## 🤖 Blossom Baby (the AI companion)
+
+A hyper-cute, week-grounded chatbot that speaks **as your little one** —
+"medical empathy, never medical advice". Floating chat bubble (all screens), a
+cover hook, and an "Ask about this week" button in the week guide. Grounded in
+the current week from `guide-data.js` + LMP/due date; a red-line lexicon
+(bleeding, severe pain, loss of movement…) is checked **before any model call**
+and always answers with a caring "contact your doctor / emergency services".
+
+**Privacy-first by design:**
+- No chat content is ever stored server-side — only anonymous daily counters.
+- Consent-first: nothing is sent until mama taps "Sounds good".
+- **BYOK** (advanced): her own Gemini key → messages go straight to Google,
+  never through the server.
+- One-time disclaimer: "a cheerleader, not a doctor".
+
+**Setup (optional — mock mode works without it):**
+```bash
+# server-side Gemini key (never shipped to the client)
+export GEMINI_API_KEY=AIza…            # or put it in data/.env.local (gitignored)
+export CHAT_ADMIN_TOKEN=choose-one     # for the dashboard
+node server.js                         # then open /admin with that token
+```
+Tunable caps: `CHAT_DAILY_DEVICE` (20), `CHAT_DAILY_IP` (30), `CHAT_DAILY_GLOBAL` (1000).
+The PWA talks to the journal server's `/api/chat` — set `apiBase` in `pwa/app.js`
+to your deployed URL when you ship it.
+
 ## 🔒 Privacy
 
 Your journal is yours. The server's real entries and photos live in `data/`

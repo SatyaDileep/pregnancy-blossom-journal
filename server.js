@@ -705,6 +705,10 @@ app.post('/api/restore-milestones', (req, res) => {
   res.json({ added, milestones: MILESTONES.length });
 });
 
+/* Blossom Baby — the AI companion (privacy-first chat proxy, caps, founder
+   dashboard). See chat-server.js for the full module. */
+require('./chat-server')(app, PREGNANCY_GUIDE);
+
 app.use('/api', (err, req, res, next) => {
   if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
     return res.status(400).json({ error: 'That photo is too big (max 20 MB).' });

@@ -25,11 +25,29 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        create("release") {
+            // Populated only in CI (GitHub Actions exports JKS_PATH etc.).
+            // Locally these env vars are unset, so the config is inert and
+            // builds keep using debug signing exactly as before.
+            val jksPath = System.getenv("JKS_PATH")
+            if (jksPath != null) {
+                storeFile = file(jksPath)
+                storePassword = System.getenv("JKS_PASS") ?: "journal2026"
+                keyAlias = System.getenv("JKS_ALIAS") ?: "journal"
+                keyPassword = System.getenv("JKS_PASS") ?: "journal2026"
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = if (System.getenv("JKS_PATH") != null) {
+                signingConfigs.getByName("release")
+            } else {
+                // Signing with the debug keys for now, so `flutter run --release` works.
+                signingConfigs.getByName("debug")
+            }
         }
     }
 }

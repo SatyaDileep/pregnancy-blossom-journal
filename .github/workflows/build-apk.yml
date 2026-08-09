@@ -1,0 +1,64 @@
+name: Build Android APK
+
+# Run manually from the Actions tab: Actions -> "Build Android APK" -> "Run workflow".
+on:
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    name: Build release APK
+    runs-on: ubuntu-latest
+    env:
+      # Local sideload key only (this APK is never published to the Play Store).
+      # It lets every future build sign with the SAME key so updates install over
+      # old versions instead of requiring an uninstall. If you later go public,
+      # move this password into a repository Secret.
+      JKS_PASS: journal2026
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Restore signing keystore cache
+        uses: actions/cache@v4
+        with:
+          path: /home/runner/keystore.jks
+          key: journal-keystore-v1
+
+      - name: Create signing keystore (first run only)
+        run: |
+          set -euo pipefail
+          if [ ! -f /home/runner/keystore.jks ]; then
+            keytool -genkeypair -v -keystore /home/runner/keystore.jks \
+              -storetype JKS -alias journal -keyalg RSA -keysize 2048 \
+              -validity 10000 -storepass "$JKS_PASS" -keypass "$JKS_PASS" \
+              -dname "CN=Pregnancy Journal, OU=Blossom, O=Blossom, L=Bangalore, ST=KA, C=IN"
+          fi
+          echo "JKS_PATH=/home/runner/keystore.jks" >> "$GITHUB_ENV"
+
+      - name: Fetch dependencies
+        working-directory: app
+        run: flutter pub get
+
+      - name: Build release APK
+        working-directory: app
+        run: flutter build apk --release
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pregnancy-journal-apk
+          path: app/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          retention-days: 30

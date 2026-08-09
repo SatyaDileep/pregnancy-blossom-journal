@@ -275,7 +275,7 @@
         <button class="icon-btn" id="art-close" aria-label="Close">✕</button>
       </div>
       <div class="modal-body">
-        <p class="art-intro">Copy this prompt into any image generator, then add the finished picture to this page with ✏️ Edit → Photo. Tweak the words freely first.</p>
+        <p class="art-intro">Generate it right here with <b>✨ Generate with AI</b>, or copy the prompt into any image generator and add the picture with ✏️ Edit → Photo. Tweak the words freely first.</p>
         <textarea id="art-text" class="art-text" spellcheck="false"></textarea>
         <ul class="art-steps">
           <li>🎨 Generate the image anywhere you like — Midjourney, DALL·E, Leonardo, Stable Diffusion…</li>
@@ -283,8 +283,10 @@
           <li>💛 Save — the page now carries its own little artwork</li>
         </ul>
       </div>
-      <div class="modal-foot">
-        <button class="btn btn-ghost" id="art-cancel">Close</button>
+      <div class="modal-foot modal-foot-art">
+        <span id="art-status" class="art-status" hidden></span>
+        <button type="button" class="btn btn-ghost" id="art-cancel">Close</button>
+        <button type="button" class="btn btn-ai" id="art-generate">✨ Generate with AI</button>
         <button class="btn btn-primary" id="art-copy">📋 Copy prompt</button>
       </div>
     </div>

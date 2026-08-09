@@ -706,8 +706,75 @@ app.post('/api/restore-milestones', (req, res) => {
 });
 
 /* Blossom Baby — the AI companion (privacy-first chat proxy, caps, founder
-   dashboard). See chat-server.js for the full module. */
-require('./chat-server')(app, PREGNANCY_GUIDE);
+   dashboard, AI artwork). See chat-server.js for the full module. */
+const chat = require('./chat-server')(app, PREGNANCY_GUIDE);
+
+/* Generate an AI picture for a milestone page: the client sends the art
+   prompt it already built, the server draws it with the image model (key
+   server-side), saves it into the photos folder and attaches it to the page. */
+app.options('/api/art-generate', (req, res) => {
+  if (!chat.applyCors(req, res)) return res.status(403).json({ error: 'Not allowed.' });
+  res.sendStatus(204);
+});
+app.post('/api/art-generate', async (req, res) => {
+  if (!chat.applyCors(req, res)) return res.status(403).json({ error: 'Not allowed.' });
+  try {
+    const body = req.body || {};
+    const deviceId = String(body.deviceId || '').slice(0, 120);
+    const prompt = String(body.prompt || '').slice(0, 4000);
+    const id = String(body.id || '');
+    if (!prompt.trim()) return res.status(400).json({ error: 'A picture needs a prompt first.' });
+    if (!chat.enabled) {
+      return res.status(400).json({ error: 'No AI key yet — add GEMINI_API_KEY (see .env.example) to generate pictures.' });
+    }
+    /* mode=local is used by the offline PWA: the PWA's pages live only in its
+       own IndexedDB, so there is no server entry to look up — the image is
+       returned as base64 and the device saves it locally. Nothing touches the
+       web app's entries or photos. */
+    const isLocal = String(body.mode) === 'local';
+    let entry = null;
+    if (!isLocal) {
+      const idx = entries.findIndex((e) => e.id === id);
+      if (idx === -1) return res.status(404).json({ error: 'Page not found.' });
+      entry = entries[idx];
+      if (entry.photo && !entry.photoAi) {
+        return res.status(400).json({ error: 'This page already has its own picture — use ✏️ Edit → photo to change it.' });
+      }
+    }
+
+    const lim = chat.artLimitStatus(deviceId);
+    if (lim.blocked) {
+      return res.status(429).json({ error: 'Blossom has drawn a lot today — let\'s make more tomorrow. 💛', code: 'art_limit' });
+    }
+
+    const art = await chat.generateArt(prompt);
+    const mime = art.mime;
+    if (mime !== 'image/jpeg' && mime !== 'image/webp' && mime !== 'image/png') {
+      return res.status(502).json({ error: 'The little artist drew something unexpected — please try again in a moment. 🎨' });
+    }
+    const ext = mime === 'image/jpeg' ? 'jpg' : mime === 'image/webp' ? 'webp' : 'png';
+
+    if (isLocal) {
+      chat.recordArt(deviceId);
+      return res.json({ base64: art.data.toString('base64'), mime, caption: art.caption || '' });
+    }
+
+    const fname = 'art-' + Date.now() + '-' + crypto.randomBytes(4).toString('hex') + '.' + ext;
+    fs.writeFileSync(path.join(PHOTOS_DIR, fname), art.data);
+
+    if (entry.photo) cleanupPhoto(entry.photo);
+    entry.photo = '/photos/' + fname;
+    entry.photoAi = true;
+    if (art.caption) entry.photoCaption = art.caption;
+    saveEntries();
+    chat.recordArt(deviceId);
+    res.json(entry);
+  } catch (err) {
+    console.error('art error:', err.message);
+    if (err && err.code) return res.status(err.status || 402).json({ code: err.code, error: err.message });
+    res.status(502).json({ error: 'The little artist got distracted — please try again in a moment. 🎨' });
+  }
+});
 
 app.use('/api', (err, req, res, next) => {
   if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {

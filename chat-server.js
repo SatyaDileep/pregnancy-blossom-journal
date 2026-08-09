@@ -56,6 +56,13 @@ module.exports = function registerChat(app, guide) {
   const GEMINI_KEY = process.env.GEMINI_API_KEY || '';
   const GEMINI_ENABLED = !!GEMINI_KEY;
   const MOCK_ENABLED = !GEMINI_ENABLED && process.env.CHAT_ALLOW_MOCK !== '0';
+  /* AI artwork — gemini-3.1-flash-image is the modern flash image model.
+     NOTE: image models are paid-only on new keys (free tier limit is 0), so
+     the endpoint fails gracefully with a billing hint until the key has
+     image credits. Override with ART_MODEL. */
+  const ART_MODEL = process.env.ART_MODEL || 'gemini-3.1-flash-image';
+  const ART_DAILY_DEVICE = Number(process.env.ART_DAILY_DEVICE) || 6;
+  const ART_DAILY_GLOBAL = Number(process.env.ART_DAILY_GLOBAL) || 100;
   /* optional scoped CORS: comma-separated origins in CHAT_CORS_ORIGINS.
      Leave empty to allow any origin (fine for a personal journal); set it
      once the app is public so only your deployed front-ends can call chat. */
@@ -273,11 +280,82 @@ module.exports = function registerChat(app, guide) {
     return 'Hiiii mama! It\'s me, ' + nickname + '! 🥰 I\'m the size of ' + size + ' this week and I\'m practising my somersaults. Ask me how big I am, or how I\'m growing, or just tell me about your day — I love listening to your voice.';
   }
 
+  /* --- AI artwork (image generation) --- */
+  function artLimitStatus(deviceId) {
+    const s = readStats();
+    const t = todayISO();
+    if (!s.days[t]) s.days[t] = { messages: 0, devices: {}, byIp: {} };
+    const day = s.days[t];
+    const hash = crypto.createHash('sha256').update(String(deviceId || 'anon')).digest('hex').slice(0, 16);
+    const perDevice = day.artByDevice ? day.artByDevice[hash] || 0 : 0;
+    const total = day.artGen || 0;
+    return { blocked: perDevice >= ART_DAILY_DEVICE || total >= ART_DAILY_GLOBAL, perDevice, total };
+  }
+  function recordArt(deviceId) {
+    const s = readStats();
+    const t = todayISO();
+    if (!s.days[t]) s.days[t] = { messages: 0, devices: {}, byIp: {} };
+    const day = s.days[t];
+    day.artGen = (day.artGen || 0) + 1;
+    day.artByDevice = day.artByDevice || {};
+    const hash = crypto.createHash('sha256').update(String(deviceId || 'anon')).digest('hex').slice(0, 16);
+    day.artByDevice[hash] = (day.artByDevice[hash] || 0) + 1;
+    saveStats(s);
+  }
+
+  /* Generate one image from a prompt. Returns { data, mime, caption } or
+     throws; throws { status, code, message } on quota so the caller can
+     show a friendly billing hint. */
+  async function generateArt(prompt) {
+    const url = 'https://generativelanguage.googleapis.com/v1beta/models/' +
+      encodeURIComponent(ART_MODEL) + ':generateContent?key=' + GEMINI_KEY;
+    const body = {
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: { responseModalities: ['TEXT', 'IMAGE'] }
+    };
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 90000);
+    let data;
+    try {
+      const r = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        signal: ctrl.signal
+      });
+      data = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        const msg = (data && data.error && data.error.message) || ('image error ' + r.status);
+        if (r.status === 429 && /quota/i.test(msg)) {
+          const e = new Error('Blossom tried to draw it, but the AI plan needs image credits. Turn on billing at ai.google.dev (there is a free trial credit), or add the picture yourself from the photo box. 💛');
+          e.status = 402; e.code = 'art_quota';
+          throw e;
+        }
+        throw new Error(msg);
+      }
+    } finally {
+      clearTimeout(timer);
+    }
+    const parts =
+      (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) || [];
+    const img = parts.find((p) => p.inlineData && p.inlineData.data);
+    if (!img) {
+      const cap = parts.find((p) => p.text && p.text.trim());
+      throw new Error(cap ? 'Blossom described it but could not draw it (the AI plan needs image credits). 💛' : 'Blossom couldn\'t draw that one — try again?');
+    }
+    const caption = parts.find((p) => p.text && p.text.trim());
+    return {
+      data: Buffer.from(img.inlineData.data, 'base64'),
+      mime: img.inlineData.mimeType || 'image/png',
+      caption: caption ? caption.text.trim().slice(0, 90) : ''
+    };
+  }
+
   /* --- routes --- */
   // CORS: by default any origin may talk to chat (the PWA runs from a
   // different origin); when CHAT_CORS_ORIGINS is set, only listed origins
   // (plus same-origin) are allowed.
-  app.use('/api/chat', (req, res, next) => {
+  function applyCors(req, res) {
     const origin = req.headers.origin;
     let allow = '*';
     if (CORS_ORIGINS.length) {
@@ -289,7 +367,11 @@ module.exports = function registerChat(app, guide) {
     }
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    if (req.method === 'OPTIONS') return res.sendStatus(allow ? 204 : 403);
+    return !!allow;
+  }
+  app.use('/api/chat', (req, res, next) => {
+    if (!applyCors(req, res)) return res.status(403).json({ error: 'Not allowed.' });
+    if (req.method === 'OPTIONS') return res.sendStatus(204);
     next();
   });
 
@@ -300,7 +382,10 @@ module.exports = function registerChat(app, guide) {
       enabled: GEMINI_ENABLED,
       mock: !GEMINI_ENABLED && MOCK_ENABLED,
       model: CHAT.model,
-      caps: { device: CHAT.dailyPerDevice, ip: CHAT.dailyPerIp, global: CHAT.dailyGlobal }
+      artEnabled: GEMINI_ENABLED,
+      artModel: ART_MODEL,
+      caps: { device: CHAT.dailyPerDevice, ip: CHAT.dailyPerIp, global: CHAT.dailyGlobal },
+      artCaps: { device: ART_DAILY_DEVICE, global: ART_DAILY_GLOBAL }
     });
   });
 
@@ -452,4 +537,14 @@ async function load(){
 load();
 </script></body></html>`);
   });
+
+  /* expose the art engine to server.js (which owns entries/photos) */
+  return {
+    enabled: GEMINI_ENABLED,
+    artModel: ART_MODEL,
+    artLimitStatus,
+    recordArt,
+    generateArt,
+    applyCors
+  };
 };

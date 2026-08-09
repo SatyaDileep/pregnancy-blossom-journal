@@ -1009,8 +1009,14 @@ let artEntry = null;
 
 function openArtPrompt(entry) {
   artEntry = entry;
+  artQuotaBlocked = false;
   renderArtPrompt();
   $('#art-overlay').hidden = false;
+  const btn = $('#art-generate');
+  if (btn) {
+    btn.disabled = false;
+    btn.textContent = '✨ Generate with AI';
+  }
 }
 
 function renderArtPrompt() {
@@ -1043,6 +1049,89 @@ function legacyCopyPrompt(done) {
     done();
   } catch {
     toast('Select the text and copy it yourself.');
+  }
+}
+
+/* Draw a picture for this page right here, using the AI key on the server.
+   The PWA is offline-first, so mode=local returns the image as base64 and we
+   save it into this device's own IndexedDB (photos store) — nothing about
+   this picture ever touches the web app's storage. */
+let artGenerating = false;
+let artQuotaBlocked = false;
+
+function artDeviceId() {
+  try {
+    let d = localStorage.getItem('blossom.deviceId');
+    if (!d) {
+      d = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'd' + Date.now();
+      localStorage.setItem('blossom.deviceId', d);
+    }
+    return d;
+  } catch (e) {
+    return 'anon';
+  }
+}
+
+function artStatus(msg, isErr) {
+  const el = $('#art-status');
+  if (!el) return;
+  el.hidden = false;
+  el.className = 'art-status' + (isErr ? ' art-status-err' : '');
+  el.textContent = msg;
+}
+
+function base64ToBlob(b64, mime) {
+  const bin = atob(b64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new Blob([bytes], { type: mime || 'image/png' });
+}
+
+async function generateArtPage() {
+  if (artGenerating || !artEntry) return;
+  const btn = $('#art-generate');
+  const prompt = $('#art-text').value.trim();
+  if (!prompt) {
+    toast('The prompt is empty — tweak it a little first.');
+    return;
+  }
+  artGenerating = true;
+  btn.disabled = true;
+  btn.textContent = '🎨 Little one is drawing…';
+  artStatus('Drawing takes a few moments…');
+  try {
+    const res = await fetch(resolveChatApiBase() + '/api/art-generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: artEntry.id, prompt, deviceId: artDeviceId(), mode: 'local' })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || 'The little artist got distracted — please try again.');
+    // guard against a runaway response freezing the main thread with atob
+    if (!data.base64 || data.base64.length > 15e6) {
+      throw new Error('The picture came back too big to save on this device — please try again in a moment. 💛');
+    }
+    if (data.caption) artEntry.photoCaption = data.caption;
+    const blob = base64ToBlob(data.base64, data.mime);
+    await updateEntry(artEntry, blob, false); // one write — entry + photo together
+    artQuotaBlocked = false;
+    closeArtPrompt();
+    toast('Little one drew a picture for this page! 🎨');
+    await loadAll();
+    renderAll();
+  } catch (err) {
+    artStatus(err.message, true);
+    if (/credits|billing/i.test(err.message)) {
+      artQuotaBlocked = true;
+      btn.disabled = true;
+      btn.textContent = '✨ Generate with AI';
+    }
+  } finally {
+    artGenerating = false;
+    if (!artQuotaBlocked) {
+      btn.disabled = false;
+      btn.textContent = '✨ Generate with AI';
+    }
   }
 }
 
@@ -2465,6 +2554,14 @@ function wire() {
   $('#art-close').addEventListener('click', closeArtPrompt);
   $('#art-cancel').addEventListener('click', closeArtPrompt);
   $('#art-copy').addEventListener('click', copyArtPrompt);
+  $('#art-generate').addEventListener('click', generateArtPage);
+  $('#art-text').addEventListener('input', () => {
+    const b = $('#art-generate');
+    if (b && b.disabled && artQuotaBlocked) {
+      artQuotaBlocked = false;
+      b.disabled = false;
+    }
+  });
   $('#art-overlay').addEventListener('click', (e) => {
     if (e.target === $('#art-overlay')) closeArtPrompt();
   });

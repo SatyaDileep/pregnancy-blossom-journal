@@ -481,8 +481,14 @@ let artEntry = null;
 
 function openArtPrompt(entry) {
   artEntry = entry;
+  artQuotaBlocked = false;
   renderArtPrompt();
   $('#art-overlay').hidden = false;
+  const btn = $('#art-generate');
+  if (btn) {
+    btn.disabled = false;
+    btn.textContent = '✨ Generate with AI';
+  }
 }
 
 function renderArtPrompt() {
@@ -515,6 +521,84 @@ function legacyCopyPrompt(done) {
     done();
   } catch {
     toast('Select the text and copy it yourself.');
+  }
+}
+
+/* Draw a picture for this page right here, using the AI key on the server.
+   The server keeps the finished image, attaches it to the page and returns
+   the updated entry — we just reload and show it. */
+let artGenerating = false;
+let artQuotaBlocked = false;
+
+function chatArtBase() {
+  // honor ?chatApi=… like the chat widget does, so a deployed page can point
+  // at a separate AI backend without a rebuild; same-origin by default
+  try {
+    const q = new URLSearchParams(location.search).get('chatApi');
+    if (q) return q.replace(/\/+$/, '');
+  } catch (e) {}
+  return '';
+}
+
+function artDeviceId() {
+  try {
+    let d = localStorage.getItem('blossom.deviceId');
+    if (!d) {
+      d = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'd' + Date.now();
+      localStorage.setItem('blossom.deviceId', d);
+    }
+    return d;
+  } catch (e) {
+    return 'anon';
+  }
+}
+
+function artStatus(msg, isErr) {
+  const el = $('#art-status');
+  if (!el) return;
+  el.hidden = false;
+  el.className = 'art-status' + (isErr ? ' art-status-err' : '');
+  el.textContent = msg;
+}
+
+async function generateArtPage() {
+  if (artGenerating || !artEntry) return;
+  const btn = $('#art-generate');
+  const prompt = $('#art-text').value.trim();
+  if (!prompt) {
+    toast('The prompt is empty — tweak it a little first.');
+    return;
+  }
+  artGenerating = true;
+  btn.disabled = true;
+  btn.textContent = '🎨 Little one is drawing…';
+  artStatus('Drawing takes a few moments…');
+  try {
+    await api(chatArtBase() + '/api/art-generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: artEntry.id, prompt, deviceId: artDeviceId() })
+    });
+    artQuotaBlocked = false;
+    closeArtPrompt();
+    toast('Little one drew a picture for this page! 🎨');
+    await loadAll();
+    renderAll();
+  } catch (err) {
+    artStatus(err.message, true);
+    // no billing credits? don't invite retry-spam — stay disabled until the
+    // prompt changes (or the modal reopens)
+    if (/credits|billing/i.test(err.message)) {
+      artQuotaBlocked = true;
+      btn.disabled = true;
+      btn.textContent = '✨ Generate with AI';
+    }
+  } finally {
+    artGenerating = false;
+    if (!artQuotaBlocked) {
+      btn.disabled = false;
+      btn.textContent = '✨ Generate with AI';
+    }
   }
 }
 
@@ -1911,6 +1995,15 @@ function wire() {
   $('#art-close').addEventListener('click', closeArtPrompt);
   $('#art-cancel').addEventListener('click', closeArtPrompt);
   $('#art-copy').addEventListener('click', copyArtPrompt);
+  $('#art-generate').addEventListener('click', generateArtPage);
+  $('#art-text').addEventListener('input', () => {
+    // tweaking the prompt clears a billing block and lets mama retry
+    const b = $('#art-generate');
+    if (b && b.disabled && artQuotaBlocked) {
+      artQuotaBlocked = false;
+      b.disabled = false;
+    }
+  });
   $('#art-overlay').addEventListener('click', (e) => {
     if (e.target === $('#art-overlay')) closeArtPrompt();
   });

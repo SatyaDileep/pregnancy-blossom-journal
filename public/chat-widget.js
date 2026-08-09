@@ -37,6 +37,60 @@
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
+  /* Tiny safe markdown renderer for the baby's replies (bold, italic, code,
+     code blocks, links, headers, bullet/numbered lists, paragraphs). HTML is
+     escaped FIRST, so model text can never inject markup. Emojis pass through. */
+  function mdToHtml(text) {
+    var s = String(text || '');
+    var blocks = [];
+    s = s.replace(/```[\w-]*\n?([\s\S]*?)```/g, function (_, code) {
+      blocks.push('<pre class="bc-code"><code>' + code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</code></pre>');
+      return '\u0000' + (blocks.length - 1) + '\u0000';
+    });
+    s = escapeHtml(s);
+    s = s.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+    s = s.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+    s = s.replace(/(^|[^*])\*([^*\n]+)\*(?![*])/g, '$1<em>$2</em>');
+    s = s.replace(/\[([^\]\n]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    var lines = s.split('\n');
+    var out = '', inUl = false, inOl = false;
+    lines.forEach(function (line) {
+      var h = /^#{1,3}\s+(.*)$/.exec(line);
+      var ul = /^\s*[-*]\s+(.*)$/.exec(line);
+      var ol = /^\s*\d+[.)]\s+(.*)$/.exec(line);
+      if (h) {
+        if (inUl) { out += '</ul>'; inUl = false; }
+        if (inOl) { out += '</ol>'; inOl = false; }
+        out += '<div class="bc-h">' + h[1] + '</div>';
+        return;
+      }
+      if (ul) {
+        if (inOl) { out += '</ol>'; inOl = false; }
+        if (!inUl) { out += '<ul>'; inUl = true; }
+        out += '<li>' + ul[1] + '</li>';
+        return;
+      }
+      if (ol) {
+        if (inUl) { out += '</ul>'; inUl = false; }
+        if (!inOl) { out += '<ol>'; inOl = true; }
+        out += '<li>' + ol[1] + '</li>';
+        return;
+      }
+      if (inUl) { out += '</ul>'; inUl = false; }
+      if (inOl) { out += '</ol>'; inOl = false; }
+      out += (line || '') + '\n';
+    });
+    if (inUl) out += '</ul>';
+    if (inOl) out += '</ol>';
+    out = out.replace(/\n{3,}/g, '\n\n');
+    out = out.split(/\n{2,}/).map(function (p) {
+      var clean = p.replace(/\n+/g, '<br>');
+      return clean.trim() ? '<p>' + clean + '</p>' : '';
+    }).join('');
+    out = out.replace(/\u0000(\d+)\u0000/g, function (_, i) { return blocks[Number(i)]; });
+    return out || '<p></p>';
+  }
+
   /* ---------- state ---------- */
   var LS = { consent: 'blossom.chat.consent', ownKey: 'blossom.chat.ownKey', history: 'blossom.chat.history', journal: 'blossom.chat.journal' };
   var cfg = { apiBase: '', getContext: null, model: 'gemini-flash-latest' };
@@ -50,7 +104,9 @@
     pendingPrompt: null,
     demoMode: false,
     mode: null, // null=unknown · 'gemini'=real AI · 'mock'=demo voice · 'off'=sleeping
-    byokOpen: false
+    byokOpen: false,
+    full: false,
+    sugOpen: false
   };
   try { state.history = JSON.parse(lsGet(LS.history) || '[]'); } catch (e) { state.history = []; }
   if (!Array.isArray(state.history)) state.history = [];
@@ -107,7 +163,7 @@
       '.bc-x{margin-left:auto;border:0;background:transparent;font-size:18px;color:var(--ink-soft);cursor:pointer;width:34px;height:34px;border-radius:50%}' +
       '.bc-x:hover{background:var(--accent-rgba);color:var(--ink)}' +
       '.bc-body{flex:1;overflow-y:auto;padding:16px 14px 8px;background:var(--paper-2,#fff9ec);display:flex;flex-direction:column;gap:10px;min-height:0}' +
-      '.bc-msg{max-width:82%;padding:10px 14px;border-radius:18px;font-size:15px;line-height:1.45;white-space:pre-wrap;word-wrap:break-word;animation:bcIn .22s ease}' +
+      '.bc-msg{max-width:82%;padding:10px 14px;border-radius:18px;font-size:15px;line-height:1.45;word-wrap:break-word;animation:bcIn .22s ease;font-family:inherit,\'Segoe UI Emoji\',\'Apple Color Emoji\',\'Noto Color Emoji\'}' +
       '.bc-msg.bc-baby{align-self:flex-start;background:var(--paper);border:1px solid var(--border-soft);border-bottom-left-radius:6px;box-shadow:0 2px 8px var(--shadow-1)}' +
       '.bc-msg.bc-mama{align-self:flex-end;background:var(--rose);color:#fff;border-bottom-right-radius:6px}' +
       '.bc-note{align-self:center;font-size:12px;color:var(--ink-soft);text-align:center;max-width:90%}' +
@@ -144,6 +200,35 @@
       '.bc-byok input{border:1px solid var(--border-soft);border-radius:12px;padding:9px 12px;font:13px var(--hand,' + "'Patrick Hand'" + ',cursive);background:var(--warm-bg);color:var(--ink)}' +
       '.bc-byok-row{display:flex;gap:8px}' +
       '.bc-byok-note{font-size:12.5px;color:var(--ink-soft);line-height:1.5}' +
+      /* markdown in bubbles */
+      '.bc-msg p{margin:0 0 6px}.bc-msg p:last-child{margin-bottom:0}' +
+      '.bc-msg ul,.bc-msg ol{margin:4px 0 8px;padding-left:20px}.bc-msg li{margin:2px 0}' +
+      '.bc-msg code{background:var(--accent-rgba);padding:1px 5px;border-radius:6px;font-size:.9em;font-family:Consolas,Monaco,monospace}' +
+      '.bc-msg pre{background:var(--warm-bg);border:1px solid var(--border-soft);border-radius:10px;padding:10px 12px;overflow-x:auto;margin:4px 0 8px;font-size:13px}' +
+      '.bc-msg pre code{background:none;padding:0}' +
+      '.bc-msg .bc-h{font-weight:700;margin:8px 0 4px;font-size:16px}' +
+      '.bc-msg a{color:inherit;text-decoration:underline}' +
+      '.bc-mama code{background:rgba(255,255,255,.25)}' +
+      '.bc-mama pre{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.3)}' +
+      /* fullscreen mode */
+      '.bc-fullbtn{border:0;background:transparent;font-size:16px;cursor:pointer;width:34px;height:34px;border-radius:50%;color:var(--ink-soft);flex-shrink:0}' +
+      '.bc-fullbtn:hover{background:var(--accent-rgba);color:var(--ink)}' +
+      '.bc-fullbtn.bc-on{background:var(--butter);color:#8a6d3b}' +
+      '.bc-panel.bc-full{width:100%!important;max-width:none;max-height:100dvh;height:100dvh;right:0;bottom:0;border-radius:0;z-index:300}' +
+      '.bc-panel.bc-full .bc-body{width:min(680px,100%);align-self:center;padding:18px 16px 10px}' +
+      '.bc-panel.bc-full .bc-msg{max-width:560px}' +
+      '.bc-panel.bc-full .bc-chips,.bc-panel.bc-full .bc-foot{max-width:680px;width:100%;align-self:center}' +
+      '.bc-panel.bc-full .bc-inputrow{max-width:680px;width:100%;align-self:center}' +
+      '.bc-panel.bc-full .bc-byok,.bc-panel.bc-full .bc-demo{width:min(680px,100%);align-self:center}' +
+      /* suggestion button + modal */
+      '.bc-sugbtn{border:1px solid var(--border-soft);background:var(--warm-bg);border-radius:50%;width:42px;height:42px;font-size:17px;cursor:pointer;color:var(--ink-soft);flex-shrink:0;transition:all .2s}' +
+      '.bc-sugbtn:hover{border-color:var(--rose);color:var(--rose);background:var(--accent-rgba)}' +
+      '.bc-sug{position:absolute;inset:0;z-index:8;background:var(--overlay-bg);display:flex;align-items:flex-end;justify-content:center;padding:14px;animation:bcIn .2s ease}' +
+      '.bc-sug-card{background:var(--paper);border:1px solid var(--border-soft);border-radius:22px;max-width:440px;width:100%;max-height:72%;overflow-y:auto;padding:8px 10px 12px;box-shadow:0 20px 60px var(--shadow-3)}' +
+      '.bc-sug-card h4{margin:12px 10px 6px;font-family:var(--hand,\'Patrick Hand\',cursive);color:var(--rose);font-size:14px}' +
+      '.bc-sug-card h4:first-child{margin-top:6px}' +
+      '.bc-sug-item{display:block;width:100%;text-align:left;border:0;background:transparent;padding:9px 12px;border-radius:12px;font:14px var(--hand,\'Patrick Hand\',cursive);color:var(--ink);cursor:pointer;transition:background .15s}' +
+      '.bc-sug-item:hover{background:var(--accent-rgba);color:var(--rose)}' +
       '@media (max-width:480px){.bc-panel{right:10px;left:10px;bottom:78px;width:auto}}'
     );
   }
@@ -168,6 +253,13 @@
     panel.setAttribute('role', 'dialog');
     panel.setAttribute('aria-label', 'Blossom Baby chat');
     document.body.appendChild(panel);
+    /* Escape: collapse fullscreen → close suggestions → close the panel */
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      if (state.full) { toggleFull(); return; }
+      if (state.sugOpen) { state.sugOpen = false; render(); return; }
+      if (state.open) close();
+    });
     render();
   }
 
@@ -191,9 +283,13 @@
     var keyBtn = state.consent
       ? '<button type="button" class="bc-key' + (state.ownKey ? ' bc-on" id="bc-keybtn" title="Using your own AI key — tap to change"' : '" id="bc-keybtn" title="Add your own AI key for real replies"') + ' aria-label="AI key">🔑</button>'
       : '';
+    var fullBtn = state.consent
+      ? '<button type="button" class="bc-fullbtn' + (state.full ? ' bc-on" id="bc-full" title="Exit fullscreen"' : '" id="bc-full" title="Fullscreen chat"') + ' aria-label="Toggle fullscreen">⛶</button>'
+      : '';
     var head =
       '<div class="bc-head"><div class="bc-ava">👶</div>' +
       '<div><h3>Blossom Baby ' + modeBadge + '</h3><div class="bc-status">' + escapeHtml(statusLine()) + '</div></div>' +
+      fullBtn +
       keyBtn +
       '<button type="button" class="bc-x" aria-label="Close chat">✕</button></div>';
     var body = '';
@@ -217,12 +313,17 @@
     } else {
       var msgs = state.history.map(function (m) {
         var cls = m.role === 'assistant' ? 'bc-baby' : 'bc-mama';
-        return '<div class="bc-msg ' + cls + '">' + escapeHtml(m.content) + '</div>';
+        return '<div class="bc-msg ' + cls + '">' + (m.role === 'assistant' ? mdToHtml(m.content) : escapeHtml(m.content)) + '</div>';
       }).join('');
       body = '<div class="bc-body" id="bc-msgs">' + (msgs || '<div class="bc-note">' + greeting() + '</div>') + '</div>';
       var demoHint = state.demoMode && !state.ownKey
         ? '<button type="button" class="bc-demo" id="bc-demo" title="The app is running in demo voice because no AI key is set">✨ demo voice — tap to use your own AI key</button>'
         : '';
+      var convo = state.history.length > 1; // past the blank slate?
+      var sugBtn = convo
+        ? '<button type="button" class="bc-sugbtn" id="bc-suggest" title="Suggestions" aria-label="Suggestions">💡</button>'
+        : '';
+      var sugModal = state.sugOpen ? suggestionModalHTML() : '';
       var byokPanel =
         '<div class="bc-byok' + (state.byokOpen ? ' bc-show' : '') + '" id="bc-byok">' +
         '<span class="bc-byok-note">Add your own Gemini API key (free at aistudio.google.com → Get API key) and your chats go <b>straight from this device to Google</b> — they never touch the app server. Save it and real AI replies turn on instantly.</span>' +
@@ -231,9 +332,10 @@
         '</div>';
       foot =
         '<div class="bc-chips" id="bc-chips"></div>' +
+        sugModal +
         byokPanel +
         demoHint +
-        '<div class="bc-inputrow"><input class="bc-in" id="bc-in" placeholder="Tell me something…" autocomplete="off"><button type="button" class="bc-send" id="bc-send" aria-label="Send">➤</button></div>' +
+        '<div class="bc-inputrow">' + sugBtn + '<input class="bc-in" id="bc-in" placeholder="Tell me something…" autocomplete="off"><button type="button" class="bc-send" id="bc-send" aria-label="Send">➤</button></div>' +
         '<div class="bc-foot">💛 Blossom is a cheerleader, not a doctor — for medical concerns trust your midwife or doctor. Replies come from an AI provider; nothing is stored or used for training.</div>';
     }
 
@@ -319,6 +421,34 @@
         panel.querySelector('#bc-key').focus();
       });
     }
+
+    var fullBtn = panel.querySelector('#bc-full');
+    if (fullBtn) fullBtn.addEventListener('click', toggleFull);
+    var sugBtn = panel.querySelector('#bc-suggest');
+    if (sugBtn) {
+      sugBtn.addEventListener('click', function () { state.sugOpen = true; render(); });
+    }
+    var sugModal = panel.querySelector('#bc-sug');
+    if (sugModal) {
+      sugModal.addEventListener('click', function (e) {
+        if (e.target === sugModal) { state.sugOpen = false; render(); return; }
+        var it = e.target.closest('.bc-sug-item');
+        if (it) {
+          state.sugOpen = false;
+          render();
+          send(it.dataset.sug);
+        }
+      });
+    }
+  }
+
+  /* fullscreen chat: fill the viewport, lock body scroll; Escape collapses */
+  function toggleFull() {
+    state.full = !state.full;
+    panel.classList.toggle('bc-full', state.full);
+    document.body.style.overflow = state.full ? 'hidden' : '';
+    var fb = panel.querySelector('#bc-full');
+    if (fb) fb.classList.toggle('bc-on', state.full);
   }
 
   function greeting() {
@@ -351,13 +481,36 @@
     };
   }
 
+  /* Suggestions, grouped — shown as tap-pills in the blank slate, and from a
+     dedicated 💡 button (small modal) once the conversation is going. */
+  function suggestionGroups() {
+    var ctx = context();
+    var about = ctx.week
+      ? ['How big am I this week? 🍑', "What's happening inside me this week?", 'What will I be like when I grow up?', 'Tell me a story about this week']
+      : ['What can I expect this week?', 'What will I be like when I grow up?', 'Tell me a story about this week'];
+    return [
+      { label: 'About this week', items: about },
+      { label: 'How I feel', items: ["I'm feeling tired today 🥱", 'I feel a little anxious sometimes', 'I am so excited about meeting you', 'I had a hard day, comfort me'] },
+      { label: 'Just for fun', items: ['Tell me something sweet 💛', 'Sing me a little song', 'What is your favourite thing to do in there?', 'Tell me a joke, baby'] }
+    ];
+  }
+
+  function suggestionModalHTML() {
+    var html = '<div class="bc-sug" id="bc-sug"><div class="bc-sug-card">';
+    suggestionGroups().forEach(function (g) {
+      html += '<h4>' + escapeHtml(g.label) + '</h4>';
+      g.items.forEach(function (it) {
+        html += '<button type="button" class="bc-sug-item" data-sug="' + escapeHtml(it) + '">' + escapeHtml(it) + '</button>';
+      });
+    });
+    return html + '</div></div>';
+  }
+
   function renderChips() {
     var box = panel.querySelector('#bc-chips');
     if (!box) return;
-    var ctx = context();
-    var chips = ctx.week
-      ? ['How big am I this week? 🍑', "I'm feeling tired today 🥱", "What's happening inside me this week?", 'Tell me something sweet 💛']
-      : ['What can I expect this week?', "I'm feeling a little anxious", 'Tell me something sweet 💛'];
+    if (state.history.length > 1) { box.innerHTML = ''; return; } // pills only in the blank slate
+    var chips = suggestionGroups().map(function (g) { return g.items[0]; }).slice(0, 4);
     box.innerHTML = chips
       .map(function (c) { return '<button type="button" class="bc-chip">' + escapeHtml(c) + '</button>'; })
       .join('');
@@ -398,7 +551,8 @@
     if (!panel.classList.contains('bc-open') || !els.msgs || !document.contains(els.msgs)) return;
     var div = document.createElement('div');
     div.className = 'bc-msg ' + (role === 'assistant' ? 'bc-baby' : 'bc-mama');
-    div.textContent = content;
+    if (role === 'assistant') div.innerHTML = mdToHtml(content); // markdown, safely
+    else div.textContent = content;
     els.msgs.appendChild(div);
     scrollBottom();
   }

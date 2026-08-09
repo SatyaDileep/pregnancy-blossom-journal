@@ -1,0 +1,474 @@
+{
+  "trimesters": [
+    {
+      "t": 1,
+      "name": "1st Trimester",
+      "tag": "The Seedling",
+      "range": "Weeks 4–13",
+      "emoji": "🌱",
+      "summary": "A tiny life goes from a single cell to a fully formed little human smaller than your thumb. Exhaustion, nausea, tender breasts and a superhero sense of smell — while the most important architecture of all is being laid down inside."
+    },
+    {
+      "t": 2,
+      "name": "2nd Trimester",
+      "tag": "The Golden Hour",
+      "range": "Weeks 14–27",
+      "emoji": "🌷",
+      "summary": "Energy returns, nausea melts away, the bump arrives — and somewhere around week 18 the first flutters turn \"pregnancy\" into \"a person in there\". Usually the calmest, happiest stretch of the journey."
+    },
+    {
+      "t": 3,
+      "name": "3rd Trimester",
+      "tag": "The Final Stretch",
+      "range": "Weeks 28–40",
+      "emoji": "🌙",
+      "summary": "Little one plumps up and gets ready for the big exit; you trade nausea for backache, breathlessness and nesting energy. Impatience, awe, and the most beautiful countdown in the world."
+    }
+  ],
+  "weeks": {
+    "4": {
+      "size": "a poppy seed",
+      "baby": "Your tiny cluster of cells has settled into its new home — implantation is done. The inner cells are becoming your baby, the outer ones the placenta, and the amniotic sac is forming around it all.",
+      "mom": [
+        "A missed period",
+        "Deep, sudden tiredness",
+        "Tender breasts",
+        "Maybe a little light spotting"
+      ],
+      "feel": "Disbelief, secret joy, and a fierce little wonder you can hardly keep to yourself.",
+      "analogy": "Two lines on the test are a tiny green sprout pushing up through garden soil — proof a whole new world has started growing in the dark, before anyone else can see it."
+    },
+    "5": {
+      "size": "a sesame seed",
+      "baby": "The neural tube — your baby's future brain and spine — is forming, and the primitive heart tube has begun to pulse. The placenta is taking shape, quietly getting ready to take over everything.",
+      "mom": [
+        "Nausea arriving in waves",
+        "A sense of smell that suddenly works like a superhero's",
+        "Exhaustion that hits like a wall",
+        "Frequent little trips to the loo"
+      ],
+      "feel": "You need proof. When those blood numbers double, it is a fist-pump from your own body.",
+      "analogy": "A beta-hCG is a garden's first watering check — two readings doubling means the seed is definitely, definitely alive."
+    },
+    "6": {
+      "size": "a lentil",
+      "baby": "Tiny paddle-like limb buds are appearing that will grow into arms and legs. The heart beats about 105–120 times a minute, and the basic shapes of eyes, ears and mouth are being sketched.",
+      "mom": [
+        "Morning sickness peaking",
+        "Sore, swollen breasts",
+        "Strong food aversions",
+        "Bloating and mood swings"
+      ],
+      "feel": "A rollercoaster of hormones — overwhelmed one minute, tearful the next, holding the loveliest secret.",
+      "analogy": "A tiny tadpole learning to become a person — still mostly tail and head, but already the whole plan is written down."
+    },
+    "7": {
+      "size": "a blueberry",
+      "baby": "Head still large for the body, a little tail shrinking away. Bones are beginning as soft cartilage, eyelids are forming (fused shut for now), and the heart — 110–160 beats a minute — is the first organ truly at work.",
+      "mom": [
+        "Persistent fatigue",
+        "Bloating",
+        "Constipation and heartburn",
+        "Mild cramps as the womb stretches"
+      ],
+      "feel": "Vulnerable and fiercely protective. The reality settles in — this is really happening.",
+      "analogy": "Hearing that rapid rhythm is the tiniest engine in the universe starting up — thump-thump, thump-thump — already revving twice as fast as yours."
+    },
+    "8": {
+      "size": "a raspberry",
+      "baby": "A massive milestone: all major organs and body systems now exist. The heart has chambers, hands and feet are still webbed, and the placenta has officially taken over the hormone duties.",
+      "mom": [
+        "Peak exhaustion",
+        "Strong nausea",
+        "Skin that glows or breaks out — sometimes both",
+        "Tight waistbands"
+      ],
+      "feel": "Deeply introspective. Everything is new, and the first appointment can't come soon enough.",
+      "analogy": "The blueprint of the tiny house now has every room drawn in — wiring, plumbing, roof. It is a real house now."
+    },
+    "9": {
+      "size": "a green olive",
+      "baby": "Officially a fetus now. Tiny tooth buds are forming, muscles are developing, and the heart is fully formed — many midwives can find it with a Doppler this week.",
+      "mom": [
+        "Frequent peeing",
+        "Breast changes — darker areolas, visible veins",
+        "Dizziness or light-headedness",
+        "Nausea still around"
+      ],
+      "feel": "Eager for reassurance. Hearing that heartbeat becomes the sweetest sound in the world.",
+      "analogy": "A tiny olive with a fierce pulse — small, but unmistakably, gloriously alive."
+    },
+    "10": {
+      "size": "a kumquat",
+      "baby": "Webbed fingers and toes are now fully separated, tiny nails are sprouting, ears take their final shape, and the brain is growing thousands of new neurons every minute.",
+      "mom": [
+        "Nausea starting to steady",
+        "Fatigue as a constant companion",
+        "Clothes feeling snug",
+        "Mild headaches"
+      ],
+      "feel": "Connection is growing — that ultrasound where they look properly human changes everything.",
+      "analogy": "A miniature person practising being a person — every hour, their little world gets a little more detailed."
+    },
+    "11": {
+      "size": "a fig",
+      "baby": "Very active in there — kicking, stretching, opening and closing its mouth — though you cannot feel it yet. Bones are hardening and the little face profile is sharpening.",
+      "mom": [
+        "Bloating",
+        "Headaches",
+        "A stuffy nose from extra blood flow",
+        "Digestion taking its time"
+      ],
+      "feel": "Often the turning point — anxiety begins to give way to excitement, and the secret starts getting too big to keep.",
+      "analogy": "A tiny acrobat somersaulting in an inflatable pool — you cannot feel it yet, but the show is already on."
+    },
+    "12": {
+      "size": "a lime",
+      "baby": "The liver, digestive tract and kidneys are fully operational — your baby is swallowing amniotic fluid and making urine. Reflexes are sharpening; they wriggle away when poked.",
+      "mom": [
+        "Nausea easing at last",
+        "Energy returning",
+        "The womb rising out of the pelvis",
+        "Fewer bathroom dashes"
+      ],
+      "feel": "Relief — a real, physical weight lifting. The big scary odds are behind you now.",
+      "analogy": "The dating scan is your baby's first official portrait session — a VIP backstage pass to watch them wave hello."
+    },
+    "13": {
+      "size": "a lemon",
+      "baby": "Vocal cords are forming, fingerprints are appearing, and the intestines — which grew partly inside the umbilical cord — have moved into the belly where they belong.",
+      "mom": [
+        "A bump finally starting to show",
+        "Energy rebounding",
+        "Skin clearing up",
+        "Old jeans retired"
+      ],
+      "feel": "Celebratory and grounded. You made it through the first great gate.",
+      "analogy": "The tiny house is now fully furnished — every room done, curtains drawn, lights on. Just waiting to be seen."
+    },
+    "14": {
+      "size": "a lemon",
+      "baby": "Vocal cords fully formed, facial expressions possible, and your baby can open and close their hands — often found sucking a thumb, already a little self-soother.",
+      "mom": [
+        "Morning sickness fading away",
+        "Energy coming back",
+        "Round ligament twinges",
+        "The pregnancy glow (or breakouts)"
+      ],
+      "feel": "Relief, then rising excitement — the honeymoon phase has officially begun.",
+      "analogy": "The seed has become a sprout reaching for the light — the hardest digging is done, now comes the growing."
+    },
+    "15": {
+      "size": "an apple",
+      "baby": "The skeleton is hardening from cartilage into real bone. Your baby is doing flips and rolls in the amniotic sac, and the pattern of their scalp hair is beginning to show.",
+      "mom": [
+        "A more noticeable bump",
+        "Clothes getting snug",
+        "Nasal congestion",
+        "An appetite that is back with interest"
+      ],
+      "feel": "More real by the day — and the first whispers of nesting and planning.",
+      "analogy": "A tiny gymnast practising flips in a private pool — showing off to no one, enjoying every second."
+    },
+    "16": {
+      "size": "an avocado",
+      "baby": "Ears have settled into their final place, and hearing is switching on — your baby can now hear muffled sounds from outside, including your voice and heartbeat.",
+      "mom": [
+        "A shifting centre of gravity",
+        "The linea nigra appearing",
+        "Possible \"mask of pregnancy\" on the face",
+        "Wardrobe upgrades"
+      ],
+      "feel": "A deep wave of warmth and connection — suddenly you are talking to your belly like it is the most natural thing.",
+      "analogy": "They are tuning their little radio for the first time — and your voice is the first song on the station."
+    },
+    "17": {
+      "size": "a turnip",
+      "baby": "Brown fat — vital for keeping warm after birth — is being laid down, and the first coat of vernix, that waxy waterproof protective coating, is starting to form.",
+      "mom": [
+        "Round ligament twinges",
+        "A growing appetite",
+        "Achey hips",
+        "Vivid dreams beginning"
+      ],
+      "feel": "Anticipation is building — those first flutters can't be far away now.",
+      "analogy": "They are wrapping up in a cosy waxy blanket and laying in supplies for the journey — preparing for the world outside."
+    },
+    "18": {
+      "size": "a bell pepper",
+      "baby": "The nervous system is maturing fast. Your baby has regular wake-and-sleep cycles, a coat of fine lanugo hair for warmth, and can be startled awake by loud noises.",
+      "mom": [
+        "Quickening — the first flutters!",
+        "A little backache",
+        "Itchy, stretching skin",
+        "Feeling them after meals"
+      ],
+      "feel": "The moment pregnancy becomes a conversation. Disbelief, then wonder, then joy.",
+      "analogy": "That first flutter is your tiny tenant tapping on the window from inside — \"Hey, I'm in here, and I'm growing strong.\""
+    },
+    "19": {
+      "size": "a pomegranate",
+      "baby": "Practising vital survival moves — strong sucking motions, ready for feeding, and swallowing amniotic fluid that the kidneys turn into urine.",
+      "mom": [
+        "Mild backache",
+        "Stretching skin",
+        "Hip strain",
+        "Girly appetite"
+      ],
+      "feel": "Grounded contentment — the nursery dreams begin, and updates to the family start getting fun.",
+      "analogy": "A tiny chef tasting the menu and rehearsing the first big meal — every reflex in training for meeting you."
+    },
+    "20": {
+      "size": "a banana",
+      "baby": "The halfway mark! Fingernails and toenails are complete, hearing is sharp, and your baby swallows regularly — including, occasionally, giving itself adorable hiccups.",
+      "mom": [
+        "The belly button starting to pop",
+        "Mild ankle swelling",
+        "Possible heartburn",
+        "Feeling kicks as little thuds"
+      ],
+      "feel": "A sigh of relief at halfway — and a playful bond as those kicks get stronger every day.",
+      "analogy": "A tiny musician practising its hiccup solo — rhythm you can feel, from a band of one."
+    },
+    "21": {
+      "size": "a mango",
+      "baby": "Fingerprints and toe prints are permanently set — your baby is officially one of a kind. The digestive tract is now absorbing small amounts of sugar from swallowed fluid.",
+      "mom": [
+        "Heartburn as digestion slows",
+        "Round ligament pulls",
+        "Stronger, more regular kicks",
+        "Leg cramps at night"
+      ],
+      "feel": "Daily reassurance from those kicks — a private game of peek-a-boo only you two know.",
+      "analogy": "A tiny detective leaving their fingerprints on everything — unique, forever, unmistakably theirs."
+    },
+    "22": {
+      "size": "a sweet potato",
+      "baby": "Looking like a miniature newborn now — lips, eyelids and eyebrows distinct. The eyes are still fused shut, but they move busily beneath the lids, dreaming away.",
+      "mom": [
+        "Leg cramps, especially at night",
+        "Skin stretching",
+        "Heartburn",
+        "Feeling the kicks at bedtime"
+      ],
+      "feel": "Talking, singing and reading to the bump becomes effortless — they are listening, you are sure of it.",
+      "analogy": "A tiny dreamer practising blinks behind closed curtains — rehearsing for the day they finally look at you."
+    },
+    "23": {
+      "size": "a grapefruit",
+      "baby": "Your baby can now recognise your voice, and with the inner ear fully developed, they have a real sense of balance and which way is up in there.",
+      "mom": [
+        "Braxton Hicks making a stealthy debut",
+        "Stronger kicks",
+        "Heartburn",
+        "Some breathlessness"
+      ],
+      "feel": "Pure family magic — the moment a partner's hand feels a kick is a memory you will keep forever.",
+      "analogy": "A music critic with a favourite song — your voice, on repeat, the most comforting tune in the world."
+    },
+    "24": {
+      "size": "an ear of corn",
+      "baby": "The lungs are branching out and cells are beginning to produce surfactant — the substance that will keep the air sacs open after birth. Hair is starting to grow on the head.",
+      "mom": [
+        "Skin stretching and itching",
+        "A growing bump",
+        "Occasional backache",
+        "Tightness under the ribs"
+      ],
+      "feel": "Excitement mixed with practical planning — viability week brings a whole new confidence.",
+      "analogy": "A tiny builder installing the air-conditioning — getting the house ready for its first big breath."
+    },
+    "25": {
+      "size": "an acorn squash",
+      "baby": "The central nervous system is maturing rapidly, movements are becoming coordinated, and fat is smoothing out the skin. Tiny breathing-like motions are being rehearsed.",
+      "mom": [
+        "Shortness of breath",
+        "Hair and nails growing like crazy",
+        "Occasional nosebleeds",
+        "The beginnings of nesting"
+      ],
+      "feel": "Nesting instincts can kick into high gear — organising, cleaning, preparing like never before.",
+      "analogy": "A tiny chef plumping up the cake for the big bake — every layer added with care, readying for the reveal."
+    },
+    "26": {
+      "size": "a spaghetti squash",
+      "baby": "A major milestone: the eyes are getting ready to open, sensing light through the abdominal wall and responding with kicks. Melanin is starting to colour the skin.",
+      "mom": [
+        "Sleep getting tricky",
+        "Vivid dreams",
+        "Braxton Hicks practice tightenings",
+        "Achey hips"
+      ],
+      "feel": "Wonder — and those intense dreams are completely normal, your mind rehearsing the life to come.",
+      "analogy": "A tiny stargazer peeking through the curtains — catching their first glimpses of light, curious about the world beyond."
+    },
+    "27": {
+      "size": "a head of cauliflower",
+      "baby": "Practising breathing regularly — inhaling and exhaling amniotic fluid — and showing active REM sleep complete with dreaming, kicking and stretching.",
+      "mom": [
+        "Pelvic heaviness",
+        "Fatigue returning",
+        "More frequent Braxton Hicks",
+        "Heartburn"
+      ],
+      "feel": "Standing on the threshold of the final stretch — proud, a little awed, ready.",
+      "analogy": "A tiny dreamer rehearsing breaths — each little inhale a promise of the first cry to come."
+    },
+    "28": {
+      "size": "an eggplant",
+      "baby": "The eyes can now open and close, sensing changes in light. Billions of neurons are connecting, and your baby dreams during REM sleep like a little person already.",
+      "mom": [
+        "Fatigue returning",
+        "Back pain",
+        "Sciatica",
+        "Indigestion"
+      ],
+      "feel": "Welcome to the final chapter — the countdown has begun, and nesting is real.",
+      "analogy": "A tiny dreamer with their own light show — awake, aware, and already dreaming of you."
+    },
+    "29": {
+      "size": "a butternut squash",
+      "baby": "Muscles and lungs are maturing rapidly; bones are fully formed but still soft and pliable. The kicks are getting strong enough to make you jump.",
+      "mom": [
+        "Shortness of breath",
+        "Frequent peeing",
+        "Braxton Hicks",
+        "Heavy, busy nights"
+      ],
+      "feel": "Life with a newborn is starting to feel concrete — classes, plans, the birth plan coming together.",
+      "analogy": "A tiny athlete in final training — every kick a lap around the track, getting ready for race day."
+    },
+    "30": {
+      "size": "a large cabbage",
+      "baby": "Your baby can now control their own body temperature, the brain is growing folds and grooves, and they float in about a pint and a half of amniotic fluid.",
+      "mom": [
+        "Heartburn and acid reflux",
+        "Swollen ankles and feet",
+        "A heavy, wonderful belly",
+        "Breathlessness"
+      ],
+      "feel": "Growing physically uncomfortable — and a little impatient to reach the finish line.",
+      "analogy": "A tiny thermostat installed and working — keeping their own perfect climate until it is time to come out."
+    },
+    "31": {
+      "size": "a coconut",
+      "baby": "Rapid weight gain has kicked in — baby is storing fat and looking less wrinkled, more filled out. All five senses are now fully functional.",
+      "mom": [
+        "More frequent Braxton Hicks",
+        "Possible colostrum leaks",
+        "Finding sleep a puzzle",
+        "Shortness of breath"
+      ],
+      "feel": "Balancing excitement with real fatigue — the finish line is in view and it feels wonderful.",
+      "analogy": "A tiny connoisseur tasting all five flavours at once — the world's menu is fully open now."
+    },
+    "32": {
+      "size": "a bunch of celery",
+      "baby": "Fingernails and toenails are complete, the fuzzy lanugo is beginning to shed, and your baby practises breathing, swallowing and hiccupping on a schedule.",
+      "mom": [
+        "Leaking when you laugh or sneeze",
+        "Vivid dreams and insomnia",
+        "Braxton Hicks",
+        "Pelvic pressure"
+      ],
+      "feel": "Practical preparations take over — the birth plan, the hospital bag, the nursery finishing touches.",
+      "analogy": "A tiny diver rehearsing breath-holds — lungs ready, form ready, just waiting for the starting bell."
+    },
+    "33": {
+      "size": "a pineapple",
+      "baby": "Your baby is receiving your antibodies, building their first immune defences. The skull bones are still soft and flexible, ready to make the journey through the birth canal.",
+      "mom": [
+        "Pelvic girdle aches",
+        "Fatigue like the first trimester",
+        "Nesting at full power",
+        "Breathlessness"
+      ],
+      "feel": "Fiercely proud of a person you haven't met — \"on track\" is the most beautiful sentence in the world.",
+      "analogy": "A tiny knight suiting up in your armour — your strength is their shield until they can build their own."
+    },
+    "34": {
+      "size": "a cantaloupe melon",
+      "baby": "The central nervous system and lungs are maturing significantly — if born now, most babies do very well with minimal help. Some are settling head-down already.",
+      "mom": [
+        "Lightening — the baby dropping",
+        "Easier breathing",
+        "More pelvic pressure",
+        "Constant bathroom trips"
+      ],
+      "feel": "\"It's really happening\" — readiness and \"please wait a few more weeks\" in the same breath.",
+      "analogy": "Turning head-down is your passenger buckling in and sliding into the forward-facing seat just before the ride ends."
+    },
+    "35": {
+      "size": "a honeydew melon",
+      "baby": "Gaining nearly half a pound a week now. Space is getting tight, so those kicks feel more like rolling stretches and jabs against your ribs.",
+      "mom": [
+        "Sore ribs from little kicks",
+        "Protruding belly button",
+        "Stronger Braxton Hicks",
+        "Heavy and ready"
+      ],
+      "feel": "Ready to meet them — but also, quietly, ready for your body to be your own again.",
+      "analogy": "A tiny squash in a squash court that is getting snug — every roll a gentle reminder that they are almost here."
+    },
+    "36": {
+      "size": "a head of romaine lettuce",
+      "baby": "Most babies have now turned head-down, perfectly positioned. The protective vernix coating is thickening, and cheeks are getting properly pinchable.",
+      "mom": [
+        "Weekly check-ups begin",
+        "Waddling",
+        "Pelvic heaviness",
+        "Sore back"
+      ],
+      "feel": "Deep nesting mode, or a calm \"ready when you are\". The hospital bag is packed and waiting.",
+      "analogy": "A tiny diver on the starting block — flipped, facing home, waiting for the whistle."
+    },
+    "37": {
+      "size": "a winter melon",
+      "baby": "Officially early term — organs fully developed and ready to work independently. The lanugo and vernix are shedding, and the lungs are rehearsing for their first big breath.",
+      "mom": [
+        "Mucus plug changes",
+        "Pelvic pressure",
+        "Nesting fatigue",
+        "Mild heartburn relief if they've dropped"
+      ],
+      "feel": "Hyper-vigilant and wonderfully expectant — every twinge becomes a question mark, and patience is the hardest work.",
+      "analogy": "The oven timer is on its final seconds — the wonderful thing you have baked is done, and the buzzer could go any moment."
+    },
+    "38": {
+      "size": "a small pumpkin",
+      "baby": "A firm grip, plenty of body fat, and fingernails that may already extend past the fingertips. Fully warm, fully plump, entirely ready.",
+      "mom": [
+        "Colostrum leaking",
+        "Swollen feet",
+        "Restless sleep",
+        "Regular Braxton Hicks to breathe through"
+      ],
+      "feel": "Eager, emotional, and so ready to hand over the baton and finally meet them.",
+      "analogy": "A tiny artist with sharpened nails and a firm grip — ready to hold on to you and never let go."
+    },
+    "39": {
+      "size": "a mini watermelon",
+      "baby": "Full term — fully cooked, with a strong heart, mature lungs and a robust immune system. Now simply resting, storing fat and waiting for the hormonal cue.",
+      "mom": [
+        "Heavy pelvic pressure",
+        "Frequent bathroom trips",
+        "Possible bloody show",
+        "The waiting game"
+      ],
+      "feel": "High anticipation wrapped in calm surrender — you trust your body, and you are so close.",
+      "analogy": "A tiny astronaut suited up at the hatch — everything checks out, awaiting the final countdown."
+    },
+    "40": {
+      "size": "a watermelon",
+      "baby": "Your due date — the baby is fully mature and ready to meet you. Even if they keep you waiting, the placenta keeps nourishing them safely.",
+      "mom": [
+        "The waiting game",
+        "Contractions building",
+        "Possibly the waters breaking",
+        "A body that knows what to do"
+      ],
+      "feel": "Awe, exhaustion, and a love that is about to spill over into the real world.",
+      "analogy": "The waiting story ends where the real one begins — after nine months of dreaming of a face, you finally get to see it."
+    }
+  }
+}

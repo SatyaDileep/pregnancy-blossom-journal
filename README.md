@@ -217,6 +217,19 @@ npm start
 | POST | `/api/reorder` | Reorder pages |
 | POST | `/api/restore-milestones` | Restore the default milestone skeleton |
 
+### 3. Native app (Flutter — iOS + Android)
+
+The roadmap's Phase 5 lives in [`app/`](app/README.md) — a Flutter codebase
+sharing the six themes and the week-by-week guidance (via
+`tools/sync_guide.mjs`, the single source of truth). Work in progress.
+
+```bash
+cd app
+flutter run
+```
+
+---
+
 ### 2. PWA (serverless, fully offline)
 
 Everything lives on the phone itself (IndexedDB) — no server, no cloud.

@@ -39,7 +39,7 @@
 
   /* ---------- state ---------- */
   var LS = { consent: 'blossom.chat.consent', ownKey: 'blossom.chat.ownKey', history: 'blossom.chat.history', journal: 'blossom.chat.journal' };
-  var cfg = { apiBase: '', getContext: null, model: 'gemini-2.5-flash' };
+  var cfg = { apiBase: '', getContext: null, model: 'gemini-flash-latest' };
   var state = {
     open: false,
     consent: lsGet(LS.consent) === '1',

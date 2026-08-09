@@ -44,7 +44,9 @@ module.exports = function registerChat(app, guide) {
   loadDotEnv(ENV_FILE);
 
   const CHAT = {
-    model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+    // gemini-flash-latest always tracks Google's newest flash model, so the
+    // key keeps working even as Google retires older model names.
+    model: process.env.GEMINI_MODEL || 'gemini-flash-latest',
     dailyPerDevice: Number(process.env.CHAT_DAILY_DEVICE) || 20,
     dailyPerIp: Number(process.env.CHAT_DAILY_IP) || 30,
     dailyGlobal: Number(process.env.CHAT_DAILY_GLOBAL) || 1000,
